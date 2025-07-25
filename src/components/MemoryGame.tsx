@@ -21,22 +21,22 @@ interface GamePhase {
 
 const GAME_PHASES: GamePhase[] = [
   {
-    rows: 2,
-    cols: 3,
-    numbers: [1, 2, 3],
-    description: "Fase 1: 3x2 - Números 1 a 3"
+    rows: 3,
+    cols: 4,
+    numbers: [1, 2, 3, 4, 5, 6],
+    description: "Fase 1: 4x3 - Números 1 a 6"
   },
   {
-    rows: 3,
-    cols: 3,
-    numbers: [1, 2, 3, 4],
-    description: "Fase 2: 3x3 - Números 1 a 4"
+    rows: 4,
+    cols: 4,
+    numbers: [1, 2, 3, 4, 5, 6, 7, 8],
+    description: "Fase 2: 4x4 - Números 1 a 8"
   },
   {
-    rows: 3,
-    cols: 3,
-    numbers: [1, 2, 3, 4, 5],
-    description: "Fase 3: 3x3 - Números 1 a 5"
+    rows: 4,
+    cols: 5,
+    numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    description: "Fase 3: 5x4 - Números 1 a 10"
   }
 ];
 
