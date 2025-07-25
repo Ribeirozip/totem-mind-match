@@ -24,19 +24,19 @@ const GAME_PHASES: GamePhase[] = [
     rows: 2,
     cols: 3,
     numbers: [1, 2, 3],
-    description: "Fase 1: 3x2 - Números 1-3"
+    description: "Fase 1: 3x2 - Números 1 a 3"
   },
   {
     rows: 3,
     cols: 3,
     numbers: [1, 2, 3, 4],
-    description: "Fase 2: 3x3 - Números 1-4"
+    description: "Fase 2: 3x3 - Números 1 a 4"
   },
   {
     rows: 3,
     cols: 3,
     numbers: [1, 2, 3, 4, 5],
-    description: "Fase 3: 3x3 - Números 1-5"
+    description: "Fase 3: 3x3 - Números 1 a 5"
   }
 ];
 
@@ -230,6 +230,24 @@ const MemoryGame: React.FC = () => {
                 <Star className="w-6 h-6 mr-2" />
                 Começar Jogo
               </Button>
+              
+              {/* Botões para testar fases específicas */}
+              <div className="mt-6 flex justify-center gap-4">
+                {GAME_PHASES.map((_, index) => (
+                  <Button
+                    key={index}
+                    onClick={() => {
+                      setCurrentPhase(index);
+                      initializeGame();
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="text-sm"
+                  >
+                    Testar Fase {index + 1}
+                  </Button>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
