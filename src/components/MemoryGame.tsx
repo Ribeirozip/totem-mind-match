@@ -47,7 +47,7 @@ const MemoryGame: React.FC = () => {
   const [matchedPairs, setMatchedPairs] = useState(0);
   const [score, setScore] = useState(0);
   const [moves, setMoves] = useState(0);
-  const [gameState, setGameState] = useState<'menu' | 'preview' | 'playing' | 'completed' | 'gameOver'>('menu');
+  const [gameState, setGameState] = useState<'menu' | 'preview' | 'playing' | 'phaseCompleted' | 'completed' | 'gameOver'>('menu');
   const [showingPreview, setShowingPreview] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
 
@@ -156,6 +156,10 @@ const MemoryGame: React.FC = () => {
   };
 
   const nextPhase = () => {
+    setGameState('phaseCompleted');
+  };
+
+  const proceedToNextPhase = () => {
     const phaseScore = Math.max(0, 1000 - (moves * 10));
     const newTotalScore = totalScore + score + phaseScore;
     setTotalScore(newTotalScore);
@@ -163,16 +167,9 @@ const MemoryGame: React.FC = () => {
     if (currentPhase < GAME_PHASES.length - 1) {
       setCurrentPhase(prev => prev + 1);
       setScore(0);
-      toast({
-        title: "Fase completada! 🎉",
-        description: `Bônus da fase: ${phaseScore} pontos`,
-      });
+      initializeGame();
     } else {
       setGameState('completed');
-      toast({
-        title: "Jogo completado! 🏆",
-        description: `Pontuação final: ${newTotalScore}`,
-      });
     }
   };
 
@@ -308,6 +305,61 @@ const MemoryGame: React.FC = () => {
               >
                 <RotateCcw className="w-6 h-6 mr-2" />
                 Tentar Novamente
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (gameState === 'phaseCompleted') {
+    const phaseScore = Math.max(0, 1000 - (moves * 10));
+    const isLastPhase = currentPhase === GAME_PHASES.length - 1;
+    
+    return (
+      <div className="min-h-screen bg-gradient-background flex items-center justify-center p-6">
+        <Card className="w-full max-w-2xl bg-card/90 backdrop-blur-sm border-success/20 shadow-glow">
+          <CardContent className="p-12 text-center">
+            <div className="animate-scale-in">
+              <div className="text-8xl mb-6 animate-pulse">🎉</div>
+              <h1 className="text-5xl font-bold mb-4 bg-gradient-success bg-clip-text text-transparent">
+                Fase {currentPhase + 1} Completada!
+              </h1>
+              <p className="text-xl text-muted-foreground mb-6">
+                Excelente trabalho!
+              </p>
+              
+              <div className="space-y-4 mb-8">
+                <div className="text-2xl font-bold text-foreground">
+                  Pontos da Fase: {score}
+                </div>
+                <div className="text-2xl font-bold text-success">
+                  Bônus Eficiência: {phaseScore}
+                </div>
+                <div className="text-3xl font-bold text-primary">
+                  Total: {totalScore + score + phaseScore}
+                </div>
+              </div>
+
+              {!isLastPhase && (
+                <div className="mb-8 p-6 bg-primary/10 rounded-xl border border-primary/20">
+                  <h3 className="text-2xl font-bold text-primary mb-2">
+                    Próxima Fase:
+                  </h3>
+                  <p className="text-lg text-foreground">
+                    {GAME_PHASES[currentPhase + 1].description}
+                  </p>
+                </div>
+              )}
+
+              <Button 
+                onClick={proceedToNextPhase}
+                size="lg"
+                className="text-2xl px-12 py-6 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
+              >
+                {isLastPhase ? 'Ver Resultado Final' : 'Continuar para Próxima Fase'}
+                <Star className="w-6 h-6 ml-2" />
               </Button>
             </div>
           </CardContent>
