@@ -96,15 +96,15 @@ const MemoryGame: React.FC = () => {
     setShowingPreview(true);
     setGameState('preview');
     
-    // Hide message after 1 second, keep black screen
+    // Hide message after 0.5 second, keep black screen with numbers visible
     setTimeout(() => {
       setShowingPreview(false);
-    }, 1000);
+    }, 500);
     
-    // Return to game after another 1 second of black screen
+    // Return to game after 3.5 more seconds of viewing numbers
     setTimeout(() => {
       setGameState('playing');
-    }, 2000);
+    }, 4000);
   };
 
   const handleCardClick = (cardId: number) => {
