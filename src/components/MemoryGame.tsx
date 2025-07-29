@@ -439,7 +439,7 @@ const MemoryGame: React.FC = () => {
                 ${gameState === 'playing' && !card.isMatched ? 'hover:shadow-glow' : ''}
               `}
             >
-              {(card.isFlipped || card.isMatched || showingPreview || numbersVisible) ? card.number : '?'}
+              {(card.isFlipped || card.isMatched || showingPreview || numbersVisible || showOverlay) ? card.number : '?'}
             </div>
           ))}
         </div>
