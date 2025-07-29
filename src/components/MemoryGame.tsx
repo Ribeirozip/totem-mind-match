@@ -96,8 +96,13 @@ const MemoryGame: React.FC = () => {
     setShowingPreview(true);
     setGameState('preview');
     
+    // Hide message after 1 second, keep black screen
     setTimeout(() => {
       setShowingPreview(false);
+    }, 1000);
+    
+    // Return to game after another 1 second of black screen
+    setTimeout(() => {
       setGameState('playing');
     }, 2000);
   };
