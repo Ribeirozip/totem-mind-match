@@ -49,7 +49,6 @@ const MemoryGame: React.FC = () => {
   const [moves, setMoves] = useState(0);
   const [gameState, setGameState] = useState<'menu' | 'preview' | 'playing' | 'phaseCompleted' | 'completed' | 'gameOver'>('menu');
   const [showingPreview, setShowingPreview] = useState(false);
-  const [numbersVisible, setNumbersVisible] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
 
@@ -96,7 +95,6 @@ const MemoryGame: React.FC = () => {
 
   const showPreview = () => {
     setShowingPreview(true);
-    setNumbersVisible(true);
     setShowOverlay(true);
     setGameState('preview');
     
@@ -105,9 +103,8 @@ const MemoryGame: React.FC = () => {
       setShowingPreview(false);
     }, 1500);
     
-    // Hide overlay and numbers after 5 seconds total (1.5s message + 3.5s numbers only)
+    // Hide overlay after 5 seconds total (1.5s message + 3.5s overlay with numbers)
     setTimeout(() => {
-      setNumbersVisible(false);
       setShowOverlay(false);
       setGameState('playing');
     }, 5000);
@@ -439,7 +436,7 @@ const MemoryGame: React.FC = () => {
                 ${gameState === 'playing' && !card.isMatched ? 'hover:shadow-glow' : ''}
               `}
             >
-              {(card.isFlipped || card.isMatched || showingPreview || numbersVisible || showOverlay) ? card.number : '?'}
+              {(card.isFlipped || card.isMatched || showingPreview || showOverlay) ? card.number : '?'}
             </div>
           ))}
         </div>
