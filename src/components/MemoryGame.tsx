@@ -50,6 +50,7 @@ const MemoryGame: React.FC = () => {
   const [gameState, setGameState] = useState<'menu' | 'preview' | 'playing' | 'phaseCompleted' | 'completed' | 'gameOver'>('menu');
   const [showingPreview, setShowingPreview] = useState(false);
   const [numbersVisible, setNumbersVisible] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
 
   const createCards = useCallback((phase: GamePhase): GameCard[] => {
@@ -96,18 +97,20 @@ const MemoryGame: React.FC = () => {
   const showPreview = () => {
     setShowingPreview(true);
     setNumbersVisible(true);
+    setShowOverlay(true);
     setGameState('preview');
     
-    // Hide message after 0.5 second, keep numbers visible
+    // Hide message after 1.5 seconds, keep overlay and numbers visible
     setTimeout(() => {
       setShowingPreview(false);
-    }, 500);
+    }, 1500);
     
-    // Hide numbers and return to game after 4 seconds total
+    // Hide overlay and numbers after 5 seconds total (1.5s message + 3.5s numbers only)
     setTimeout(() => {
       setNumbersVisible(false);
+      setShowOverlay(false);
       setGameState('playing');
-    }, 4000);
+    }, 5000);
   };
 
   const handleCardClick = (cardId: number) => {
@@ -442,16 +445,18 @@ const MemoryGame: React.FC = () => {
         </div>
 
         {/* Preview Overlay */}
-        {showingPreview && (
+        {showOverlay && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <Card className="bg-card/95 backdrop-blur-sm border-primary/20">
-              <CardContent className="p-8 text-center">
-                <Eye className="w-16 h-16 mx-auto mb-4 text-primary animate-pulse" />
-                <p className="text-2xl font-bold text-foreground">
-                  Memorize os números!
-                </p>
-              </CardContent>
-            </Card>
+            {showingPreview && (
+              <Card className="bg-card/95 backdrop-blur-sm border-primary/20">
+                <CardContent className="p-8 text-center">
+                  <Eye className="w-16 h-16 mx-auto mb-4 text-primary animate-pulse" />
+                  <p className="text-2xl font-bold text-foreground">
+                    Memorize os números!
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
       </div>
