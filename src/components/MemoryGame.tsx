@@ -49,6 +49,7 @@ const MemoryGame: React.FC = () => {
   const [moves, setMoves] = useState(0);
   const [gameState, setGameState] = useState<'menu' | 'preview' | 'playing' | 'phaseCompleted' | 'completed' | 'gameOver'>('menu');
   const [showingPreview, setShowingPreview] = useState(false);
+  const [numbersVisible, setNumbersVisible] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
 
   const createCards = useCallback((phase: GamePhase): GameCard[] => {
@@ -94,15 +95,17 @@ const MemoryGame: React.FC = () => {
 
   const showPreview = () => {
     setShowingPreview(true);
+    setNumbersVisible(true);
     setGameState('preview');
     
-    // Hide message after 0.5 second, keep black screen with numbers visible
+    // Hide message after 0.5 second, keep numbers visible
     setTimeout(() => {
       setShowingPreview(false);
     }, 500);
     
-    // Return to game after 3.5 more seconds of viewing numbers
+    // Hide numbers and return to game after 4 seconds total
     setTimeout(() => {
+      setNumbersVisible(false);
       setGameState('playing');
     }, 4000);
   };
@@ -433,7 +436,7 @@ const MemoryGame: React.FC = () => {
                 ${gameState === 'playing' && !card.isMatched ? 'hover:shadow-glow' : ''}
               `}
             >
-              {(card.isFlipped || card.isMatched || showingPreview) ? card.number : '?'}
+              {(card.isFlipped || card.isMatched || showingPreview || numbersVisible) ? card.number : '?'}
             </div>
           ))}
         </div>
