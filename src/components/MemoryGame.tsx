@@ -33,8 +33,8 @@ const GAME_PHASES: GamePhase[] = [
     description: "Fase 2: 4x4 - Números 1 a 8"
   },
   {
-    rows: 4,
-    cols: 5,
+    rows: 5,
+    cols: 4,
     numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     description: "Fase 3: 5x4 - Números 1 a 10"
   }
