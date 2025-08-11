@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +7,7 @@ import { Eye, RotateCcw, Trophy, Star } from 'lucide-react';
 
 interface GameCard {
   id: number;
-  number: number;
+  image: string;
   isFlipped: boolean;
   isMatched: boolean;
 }
@@ -15,7 +15,7 @@ interface GameCard {
 interface GamePhase {
   rows: number;
   cols: number;
-  numbers: number[];
+  images: string[];
   description: string;
 }
 
@@ -23,20 +23,49 @@ const GAME_PHASES: GamePhase[] = [
   {
     rows: 3,
     cols: 4,
-    numbers: [1, 2, 3, 4, 5, 6],
+    images: [
+      "public/icons/imagem1.jpeg",
+      "public/icons/imagem2.jpeg",
+      "public/icons/imagem3.jpeg",
+      "public/icons/imagem4.jpeg",
+      "public/icons/imagem5.jpeg",
+      "public/icons/imagem6.jpeg",
+    ],
     description: "Fase 1: 4x3 - Números 1 a 6"
   },
   {
     rows: 4,
-    cols: 4,
-    numbers: [1, 2, 3, 4, 5, 6, 7, 8],
-    description: "Fase 2: 4x4 - Números 1 a 8"
+    cols: 5,
+    images: [
+      "public/icons/imagem1.jpeg",
+      "public/icons/imagem2.jpeg",
+      "public/icons/imagem3.jpeg",
+      "public/icons/imagem4.jpeg",
+      "public/icons/imagem5.jpeg",
+      "public/icons/imagem6.jpeg",
+      "public/icons/imagem7.jpeg",
+      "public/icons/imagem8.jpeg",
+      "public/icons/imagem9.jpeg",
+      "public/icons/imagem10.jpeg",
+    ],
+    description: "Fase 2: 4x5 - Números 1 a 10"
   },
   {
-    rows: 5,
-    cols: 4,
-    numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    description: "Fase 3: 5x4 - Números 1 a 10"
+    rows: 4,
+    cols: 5,
+    images: [
+      "public/icons/imagem1.jpeg",
+      "public/icons/imagem2.jpeg",
+      "public/icons/imagem3.jpeg",
+      "public/icons/imagem4.jpeg",
+      "public/icons/imagem5.jpeg",
+      "public/icons/imagem6.jpeg",
+      "public/icons/imagem7.jpeg",
+      "public/icons/imagem8.jpeg",
+      "public/icons/imagem9.jpeg",
+      "public/icons/imagem10.jpeg",
+    ],
+    description: "Fase 3: 4x5 - Números 1 a 10  30s"
   }
 ];
 
@@ -51,159 +80,236 @@ const MemoryGame: React.FC = () => {
   const [showingPreview, setShowingPreview] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
+  const [previewUsesLeft, setPreviewUsesLeft] = useState(2);
+  const [previewCountdown, setPreviewCountdown] = useState(0);
+
+  const [countdown, setCountdown] = useState(30);
+  const [timeUp, setTimeUp] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const createCards = useCallback((phase: GamePhase): GameCard[] => {
     const totalCards = phase.rows * phase.cols;
     const pairsNeeded = Math.floor(totalCards / 2);
-    const selectedNumbers = phase.numbers.slice(0, pairsNeeded);
-    
-    // Create pairs
-    const numbers = [...selectedNumbers, ...selectedNumbers];
-    
-    // If odd number of cards, add one extra unique number
+    const selectedImages = phase.images.slice(0, pairsNeeded);
+    const images = [...selectedImages, ...selectedImages];
     if (totalCards % 2 === 1) {
-      numbers.push(phase.numbers[pairsNeeded] || phase.numbers[phase.numbers.length - 1]);
+      images.push(phase.images[pairsNeeded] || phase.images[phase.images.length - 1]);
     }
-    
-    // Shuffle cards
-    const shuffled = numbers.sort(() => Math.random() - 0.5);
-    
-    return shuffled.map((number, index) => ({
+    const shuffled = images.sort(() => Math.random() - 0.5);
+    return shuffled.map((image, index) => ({
       id: index,
-      number,
+      image,
       isFlipped: false,
       isMatched: false
     }));
   }, []);
-
-  const initializeGame = useCallback(() => {
-    const phase = GAME_PHASES[currentPhase];
+  const startPhase = useCallback((phaseIndex: number) => {
+    const phase = GAME_PHASES[phaseIndex];
     const newCards = createCards(phase);
+    setCurrentPhase(phaseIndex);
     setCards(newCards);
     setFlippedCards([]);
     setMatchedPairs(0);
     setMoves(0);
+    setScore(0);
     setGameState('preview');
-    setShowingPreview(true);
-    
-    // Show preview for 3 seconds
-    setTimeout(() => {
-      setShowingPreview(false);
-      setGameState('playing');
-    }, 3000);
-  }, [currentPhase, createCards]);
-
-  const showPreview = () => {
     setShowingPreview(true);
     setShowOverlay(true);
-    setGameState('preview');
-    
-    // Hide message after 1.5 seconds, keep overlay and numbers visible
+    // initial preview duration 3s
     setTimeout(() => {
       setShowingPreview(false);
-    }, 1500);
-    
-    // Hide overlay after 5 seconds total (1.5s message + 3.5s overlay with numbers)
-    setTimeout(() => {
       setShowOverlay(false);
       setGameState('playing');
-    }, 5000);
-  };
+    }, 3000);
+    // If it's phase 3, preset the countdown to 30 (will be used when playing)
+    if (phaseIndex === 2) {
+      setCountdown(30);
+      setTimeUp(false);
+    }
+  }, [createCards]);
 
-  const handleCardClick = (cardId: number) => {
-    if (gameState !== 'playing' || flippedCards.length >= 2) return;
-    
-    const card = cards[cardId];
-    if (card.isFlipped || card.isMatched) return;
+  // Initialize game from menu (starts currentPhase)
+  const initializeGame = useCallback(() => {
+    startPhase(currentPhase);
+  }, [currentPhase, startPhase]);
 
-    const newFlippedCards = [...flippedCards, cardId];
-    setFlippedCards(newFlippedCards);
-    
-    setCards(prev => prev.map(c => 
-      c.id === cardId ? { ...c, isFlipped: true } : c
-    ));
-
-    if (newFlippedCards.length === 2) {
-      setMoves(prev => prev + 1);
-      
-      const [firstCard, secondCard] = newFlippedCards.map(id => cards[id]);
-      
-      setTimeout(() => {
-        if (firstCard.number === secondCard.number) {
-          // Match found
-          setCards(prev => prev.map(c => 
-            newFlippedCards.includes(c.id) 
-              ? { ...c, isMatched: true, isFlipped: true }
-              : c
-          ));
-          setMatchedPairs(prev => prev + 1);
-          setScore(prev => prev + 100);
-          
-          toast({
-            title: "Par encontrado! 🎉",
-            description: "+100 pontos",
-          });
-        } else {
-          // No match
-          setCards(prev => prev.map(c => 
-            newFlippedCards.includes(c.id) 
-              ? { ...c, isFlipped: false }
-              : c
-          ));
+  // Show preview on button click (2s) — overlay visible while preview shown
+  const showPreview = () => {
+    if (previewUsesLeft <= 0 || gameState !== 'playing') return;
+    setPreviewUsesLeft(prev => prev - 1);
+    setPreviewCountdown(2);
+    setShowingPreview(true);
+    setShowOverlay(true);
+    const countdownInterval = setInterval(() => {
+      setPreviewCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval);
+          setShowingPreview(false);
+          setShowOverlay(false);
+          // return to playing
+          setGameState('playing');
+          return 0;
         }
-        setFlippedCards([]);
+        return prev - 1;
+      });
+    }, 1000);
+    // Switch temporarily to preview state to pause timer effect
+    setGameState('preview');
+  };
+
+  // Timer effect for phase 3: starts only when currentPhase === 2 and gameState === 'playing'
+  useEffect(() => {
+    // Cleanup any previous timer
+    const clearTimer = () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+
+    if (currentPhase === 2 && gameState === 'playing') {
+      // start/continue timer (do NOT reset countdown here — countdown was set when entering phase)
+      setTimeUp(false);
+      // ensure no duplicate intervals
+      clearTimer();
+      timerRef.current = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            // time finished
+            clearTimer();
+            setTimeUp(true);
+            const totalPairs = Math.floor(cards.length / 2);
+            // only game over if still missing pairs
+            if (matchedPairs < totalPairs) {
+              setGameState('gameOver');
+              toast({
+                title: "Tempo esgotado!",
+                description: "Você não encontrou todos os pares a tempo.",
+              });
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
-    }
-  };
-
-  const resetGame = () => {
-    setCurrentPhase(0);
-    setScore(0);
-    setTotalScore(0);
-    setGameState('menu');
-  };
-
-  const nextPhase = () => {
-    setGameState('phaseCompleted');
-  };
-
-  const proceedToNextPhase = () => {
-    const phaseScore = Math.max(0, 1000 - (moves * 10));
-    const newTotalScore = totalScore + score + phaseScore;
-    setTotalScore(newTotalScore);
-    
-    if (currentPhase < GAME_PHASES.length - 1) {
-      setCurrentPhase(prev => prev + 1);
-      setScore(0);
-      initializeGame();
     } else {
-      setGameState('completed');
+      // not playing in phase 3 — ensure timer paused/cleared
+      clearTimer();
     }
-  };
 
-  // Check for game completion
+    return () => clearTimer();
+  }, [currentPhase, gameState, matchedPairs, cards.length]);
+
+  // When all pairs are found -> advance to phaseCompleted
   useEffect(() => {
     if (gameState === 'playing' && cards.length > 0) {
       const totalPairs = Math.floor(cards.length / 2);
       if (matchedPairs === totalPairs) {
-        setTimeout(nextPhase, 1000);
+        // clear timer if any
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        // small delay to show last match
+        setTimeout(() => {
+          setGameState('phaseCompleted');
+        }, 800);
       }
     }
   }, [matchedPairs, cards.length, gameState]);
 
-  // Game over condition (too many moves)
+  // Game over by many moves
   useEffect(() => {
-    if (gameState === 'playing' && moves >= 20) {
+    if (gameState === 'playing' && moves > Math.floor(cards.length / 2) + 30) {
       setGameState('gameOver');
       toast({
         title: "Fim de jogo 😢",
         description: `Muitas tentativas! Pontuação: ${totalScore + score}`,
       });
     }
-  }, [moves, gameState, totalScore, score]);
+  }, [moves, gameState, totalScore, score, cards.length]);
+
+  const handleCardClick = (cardId: number) => {
+    // block clicks while not playing or while preview overlay is visible
+    if (gameState !== 'playing' || showingPreview || showOverlay) return;
+    if (flippedCards.includes(cardId)) return;
+
+    const card = cards.find(c => c.id === cardId);
+    if (!card || card.isMatched) return;
+
+    const newFlipped = [...flippedCards, cardId];
+    setFlippedCards(newFlipped);
+
+    // flip visually
+    setCards(prev => prev.map(c => c.id === cardId ? { ...c, isFlipped: true } : c));
+
+    if (newFlipped.length === 2) {
+      setMoves(prev => prev + 1);
+      const [firstId, secondId] = newFlipped;
+      const firstCard = cards.find(c => c.id === firstId);
+      const secondCard = cards.find(c => c.id === secondId);
+
+      setTimeout(() => {
+        if (firstCard && secondCard && firstCard.image === secondCard.image) {
+          // match
+          setCards(prev => prev.map(c =>
+            (c.id === firstId || c.id === secondId) ? { ...c, isMatched: true, isFlipped: true } : c
+          ));
+          setMatchedPairs(prev => prev + 1);
+          setScore(prev => prev + 100);
+          toast({ title: "Par encontrado! 🎉", description: "+100 pontos" });
+        } else {
+          // flip back
+          setCards(prev => prev.map(c =>
+            (c.id === firstId || c.id === secondId) ? { ...c, isFlipped: false } : c
+          ));
+        }
+        setFlippedCards([]);
+      }, 800);
+    }
+  };
+
+  const resetGame = () => {
+    // clear timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setCurrentPhase(0);
+    setCards([]);
+    setFlippedCards([]);
+    setMatchedPairs(0);
+    setScore(0);
+    setTotalScore(0);
+    setMoves(0);
+    setGameState('menu');
+    setShowingPreview(false);
+    setShowOverlay(false);
+    setPreviewUsesLeft(2);
+    setPreviewCountdown(0);
+    setCountdown(30);
+    setTimeUp(false);
+  };
+
+  const nextPhase = () => setGameState('phaseCompleted');
+
+  const proceedToNextPhase = () => {
+    const phaseScore = Math.max(0, 1000 - (moves * 10));
+    const newTotalScore = totalScore + score + phaseScore;
+    setTotalScore(newTotalScore);
+
+    const nextIndex = currentPhase + 1;
+    if (nextIndex < GAME_PHASES.length) {
+      // start next phase
+      startPhase(nextIndex);
+    } else {
+      setGameState('completed');
+    }
+  };
 
   const phase = GAME_PHASES[currentPhase];
 
+  // UI: menu
   if (gameState === 'menu') {
     return (
       <div className="min-h-screen bg-gradient-background flex items-center justify-center p-6">
@@ -218,33 +324,29 @@ const MemoryGame: React.FC = () => {
                 Teste sua memória em 3 fases desafiadoras!
               </p>
               <div className="space-y-4 mb-8">
-                {GAME_PHASES.map((phase, index) => (
+                {GAME_PHASES.map((ph, index) => (
                   <div key={index} className="flex items-center justify-center gap-4 text-lg">
                     <Badge variant="outline" className="w-16 h-8">
                       Fase {index + 1}
                     </Badge>
-                    <span className="text-foreground">{phase.description}</span>
+                    <span className="text-foreground">{ph.description}</span>
                   </div>
                 ))}
               </div>
-              <Button 
-                onClick={initializeGame}
+              <Button
+                onClick={() => startPhase(0)}
                 size="lg"
                 className="text-2xl px-12 py-6 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
               >
                 <Star className="w-6 h-6 mr-2" />
                 Começar Jogo
               </Button>
-              
-              {/* Botões para testar fases específicas */}
+
               <div className="mt-6 flex justify-center gap-4">
                 {GAME_PHASES.map((_, index) => (
                   <Button
                     key={index}
-                    onClick={() => {
-                      setCurrentPhase(index);
-                      initializeGame();
-                    }}
+                    onClick={() => startPhase(index)}
                     variant="outline"
                     size="sm"
                     className="text-sm"
@@ -260,6 +362,7 @@ const MemoryGame: React.FC = () => {
     );
   }
 
+  // UI: completed
   if (gameState === 'completed') {
     return (
       <div className="min-h-screen bg-gradient-background flex items-center justify-center p-6">
@@ -276,7 +379,7 @@ const MemoryGame: React.FC = () => {
               <div className="text-4xl font-bold text-success mb-8">
                 Pontuação Final: {totalScore}
               </div>
-              <Button 
+              <Button
                 onClick={resetGame}
                 size="lg"
                 className="text-2xl px-12 py-6 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
@@ -290,6 +393,7 @@ const MemoryGame: React.FC = () => {
     );
   }
 
+  // UI: gameOver
   if (gameState === 'gameOver') {
     return (
       <div className="min-h-screen bg-gradient-background flex items-center justify-center p-6">
@@ -301,12 +405,12 @@ const MemoryGame: React.FC = () => {
                 Fim de Jogo
               </h1>
               <p className="text-2xl text-muted-foreground mb-6">
-                Muitas tentativas! Tente novamente.
+                Muitas tentativas ou tempo esgotado! Tente novamente.
               </p>
               <div className="text-3xl font-bold text-foreground mb-8">
                 Pontuação Final: {totalScore + score}
               </div>
-              <Button 
+              <Button
                 onClick={resetGame}
                 size="lg"
                 className="text-2xl px-12 py-6 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
@@ -321,10 +425,11 @@ const MemoryGame: React.FC = () => {
     );
   }
 
+  // UI: phaseCompleted
   if (gameState === 'phaseCompleted') {
     const phaseScore = Math.max(0, 1000 - (moves * 10));
     const isLastPhase = currentPhase === GAME_PHASES.length - 1;
-    
+
     return (
       <div className="min-h-screen bg-gradient-background flex items-center justify-center p-6">
         <Card className="w-full max-w-2xl bg-card/90 backdrop-blur-sm border-success/20 shadow-glow">
@@ -337,7 +442,7 @@ const MemoryGame: React.FC = () => {
               <p className="text-xl text-muted-foreground mb-6">
                 Excelente trabalho!
               </p>
-              
+
               <div className="space-y-4 mb-8">
                 <div className="text-2xl font-bold text-foreground">
                   Pontos da Fase: {score}
@@ -361,7 +466,7 @@ const MemoryGame: React.FC = () => {
                 </div>
               )}
 
-              <Button 
+              <Button
                 onClick={proceedToNextPhase}
                 size="lg"
                 className="text-2xl px-12 py-6 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
@@ -376,6 +481,7 @@ const MemoryGame: React.FC = () => {
     );
   }
 
+  // Default: playing / preview UI
   return (
     <div className="min-h-screen bg-gradient-background p-6">
       <div className="max-w-4xl mx-auto">
@@ -390,11 +496,28 @@ const MemoryGame: React.FC = () => {
               <span className="text-foreground">Pontos: {score}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-foreground">Tentativas: {moves}/20</span>
+              <span className="text-foreground">Tentativas: {moves}/{Math.floor(cards.length / 2) + 2}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-foreground">Pares: {matchedPairs}/{Math.floor(cards.length / 2)}</span>
             </div>
+
+            {/* Cronômetro visível apenas na fase 3 (index 2) enquanto jogando */}
+            {currentPhase === 2 && gameState === 'playing' && (
+              <div className="text-center mb-4">
+                <div className="inline-block px-6 py-2 bg-black/70 rounded-xl border border-white/20">
+                  <p className="text-lg text-white font-bold">
+                    Tempo restante: <span className="text-red-500">{countdown}s</span>
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {currentPhase === 2 && timeUp && (
+              <div className="text-center mb-4">
+                <p className="text-red-600 font-semibold text-lg">Tempo esgotado!</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -407,13 +530,13 @@ const MemoryGame: React.FC = () => {
               className="bg-warning text-warning-foreground border-warning hover:bg-warning/90"
             >
               <Eye className="w-5 h-5 mr-2" />
-              Ver Números (2s)
+              Ver Números ({previewUsesLeft})
             </Button>
           </div>
         )}
 
         {/* Game Grid */}
-        <div 
+        <div
           className="grid gap-4 mx-auto max-w-3xl"
           style={{
             gridTemplateColumns: `repeat(${phase.cols}, 1fr)`,
@@ -425,18 +548,26 @@ const MemoryGame: React.FC = () => {
               key={card.id}
               onClick={() => handleCardClick(card.id)}
               className={`
-                aspect-square rounded-2xl cursor-pointer transition-all duration-300 hover:scale-105
+                aspect-square rounded-2xl cursor-pointer transition-all duration- hover:scale-105
                 flex items-center justify-center text-4xl font-bold shadow-card
                 ${card.isMatched 
                   ? 'bg-gradient-success text-success-foreground animate-card-match' 
                   : card.isFlipped || showingPreview
-                    ? 'bg-gradient-primary text-primary-foreground' 
-                    : 'bg-game-card-back text-transparent hover:shadow-glow'
+                  ? 'bg-gradient-primary text-primary-foreground' 
+                  : 'bg-game-card-back text-transparent hover:shadow-glow'
                 }
                 ${gameState === 'playing' && !card.isMatched ? 'hover:shadow-glow' : ''}
               `}
             >
-              {(card.isFlipped || card.isMatched || showingPreview || showOverlay) ? card.number : '?'}
+              {(card.isFlipped || card.isMatched || showingPreview || showOverlay) ? (
+                <img
+                  src={card.image}
+                  alt="Imagem do card"
+                  className="w-3/4 h-3/4 object-contain"
+                />
+              ) : (
+                '?'
+              )}
             </div>
           ))}
         </div>
@@ -448,12 +579,19 @@ const MemoryGame: React.FC = () => {
               <Card className="bg-card/95 backdrop-blur-sm border-primary/20">
                 <CardContent className="p-8 text-center">
                   <Eye className="w-16 h-16 mx-auto mb-4 text-primary animate-pulse" />
-                  <p className="text-2xl font-bold text-foreground">
-                    Memorize os números!
-                  </p>
+                  <p className="text-lg text-foreground">Visualização dos números</p>
                 </CardContent>
               </Card>
             )}
+          </div>
+        )}
+
+      </div>
+
+      <div>
+        {timeUp && (
+          <div className="text-red-500 text-center font-bold text-xl mt-4">
+            Tempo esgotado!
           </div>
         )}
       </div>
