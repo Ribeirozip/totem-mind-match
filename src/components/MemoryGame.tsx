@@ -245,6 +245,9 @@ const MemoryGame: React.FC = () => {
     const card = cards.find(c => c.id === cardId);
     if (!card || card.isMatched) return;
 
+    // CORREÇÃO: Bloquear mais de 2 cliques simultâneos
+    if (flippedCards.length >= 2) return;
+
     const newFlipped = [...flippedCards, cardId];
     setFlippedCards(newFlipped);
 
@@ -398,13 +401,23 @@ const MemoryGame: React.FC = () => {
               <div className="text-4xl font-bold text-success mb-8">
                 Pontuação Final: {totalScore}
               </div>
-              <Button
-                onClick={resetGame}
-                size="lg"
-                className="text-2xl px-12 py-6 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
-              >
-                Jogar Novamente
-              </Button>
+              <div className="flex gap-4 justify-center">
+                <Button
+                  onClick={resetGame}
+                  size="lg"
+                  className="text-xl px-8 py-4 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
+                >
+                  Novo Jogo
+                </Button>
+                <Button
+                  onClick={() => setGameState('dataEntry')}
+                  variant="outline"
+                  size="lg"
+                  className="text-xl px-8 py-4"
+                >
+                  Voltar ao Início
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -429,14 +442,24 @@ const MemoryGame: React.FC = () => {
               <div className="text-3xl font-bold text-foreground mb-8">
                 Pontuação Final: {totalScore + score}
               </div>
-              <Button
-                onClick={resetGame}
-                size="lg"
-                className="text-2xl px-12 py-6 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
-              >
-                <RotateCcw className="w-6 h-6 mr-2" />
-                Tentar Novamente
-              </Button>
+              <div className="flex gap-4 justify-center">
+                <Button
+                  onClick={resetGame}
+                  size="lg"
+                  className="text-xl px-8 py-4 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
+                >
+                  <RotateCcw className="w-6 h-6 mr-2" />
+                  Tentar Novamente
+                </Button>
+                <Button
+                  onClick={() => setGameState('dataEntry')}
+                  variant="outline"
+                  size="lg"
+                  className="text-xl px-8 py-4"
+                >
+                  Voltar ao Início
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
