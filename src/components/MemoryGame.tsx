@@ -4,12 +4,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { Eye, RotateCcw, Trophy, Star } from 'lucide-react';
+import PlayerDataForm from './PlayerDataForm';
 
 interface GameCard {
   id: number;
   image: string;
   isFlipped: boolean;
   isMatched: boolean;
+}
+
+interface PlayerData {
+  name: string;
+  number: string;
+  timestamp: string;
 }
 
 interface GamePhase {
@@ -76,7 +83,8 @@ const MemoryGame: React.FC = () => {
   const [matchedPairs, setMatchedPairs] = useState(0);
   const [score, setScore] = useState(0);
   const [moves, setMoves] = useState(0);
-  const [gameState, setGameState] = useState<'menu' | 'preview' | 'playing' | 'phaseCompleted' | 'completed' | 'gameOver'>('menu');
+  const [gameState, setGameState] = useState<'dataEntry' | 'menu' | 'preview' | 'playing' | 'phaseCompleted' | 'completed' | 'gameOver'>('dataEntry');
+  const [playerData, setPlayerData] = useState<PlayerData | null>(null);
   const [showingPreview, setShowingPreview] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
@@ -282,13 +290,19 @@ const MemoryGame: React.FC = () => {
     setScore(0);
     setTotalScore(0);
     setMoves(0);
-    setGameState('menu');
+    setGameState('dataEntry');
+    setPlayerData(null);
     setShowingPreview(false);
     setShowOverlay(false);
     setPreviewUsesLeft(2);
     setPreviewCountdown(0);
     setCountdown(30);
     setTimeUp(false);
+  };
+
+  const handlePlayerDataSubmit = (data: PlayerData) => {
+    setPlayerData(data);
+    setGameState('menu');
   };
 
   const nextPhase = () => setGameState('phaseCompleted');
@@ -308,6 +322,11 @@ const MemoryGame: React.FC = () => {
   };
 
   const phase = GAME_PHASES[currentPhase];
+
+  // UI: data entry
+  if (gameState === 'dataEntry') {
+    return <PlayerDataForm onSubmit={handlePlayerDataSubmit} />;
+  }
 
   // UI: menu
   if (gameState === 'menu') {
