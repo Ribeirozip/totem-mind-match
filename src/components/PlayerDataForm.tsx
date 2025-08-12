@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UserCheck, Star } from 'lucide-react';
+import { UserCheck, Star, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
 
@@ -22,7 +22,7 @@ const PlayerDataForm: React.FC<PlayerDataFormProps> = ({ onSubmit }) => {
   const [number, setNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const saveToExcel = (playerData: PlayerData) => {
+  const savePlayerData = (playerData: PlayerData) => {
     try {
       // Get existing data from localStorage or create new array
       const existingDataStr = localStorage.getItem('gamePlayerData');
@@ -34,8 +34,36 @@ const PlayerDataForm: React.FC<PlayerDataFormProps> = ({ onSubmit }) => {
       // Save back to localStorage
       localStorage.setItem('gamePlayerData', JSON.stringify(updatedData));
       
+      toast({
+        title: "Dados salvos!",
+        description: `Jogador cadastrado! Total de ${updatedData.length} jogadores registrados.`,
+      });
+    } catch (error) {
+      console.error('Erro ao salvar dados:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar os dados.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const exportToExcel = () => {
+    try {
+      const existingDataStr = localStorage.getItem('gamePlayerData');
+      const existingData: PlayerData[] = existingDataStr ? JSON.parse(existingDataStr) : [];
+      
+      if (existingData.length === 0) {
+        toast({
+          title: "Nenhum dado encontrado",
+          description: "Não há dados de jogadores para exportar.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Create Excel workbook
-      const ws = XLSX.utils.json_to_sheet(updatedData);
+      const ws = XLSX.utils.json_to_sheet(existingData);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Jogadores');
       
@@ -43,14 +71,14 @@ const PlayerDataForm: React.FC<PlayerDataFormProps> = ({ onSubmit }) => {
       XLSX.writeFile(wb, 'dados_jogadores_memoria.xlsx');
       
       toast({
-        title: "Dados salvos!",
-        description: "Informações salvas com sucesso no arquivo Excel.",
+        title: "Arquivo exportado!",
+        description: `${existingData.length} registros exportados com sucesso.`,
       });
     } catch (error) {
-      console.error('Erro ao salvar dados:', error);
+      console.error('Erro ao exportar dados:', error);
       toast({
-        title: "Erro ao salvar",
-        description: "Não foi possível salvar os dados no arquivo Excel.",
+        title: "Erro ao exportar",
+        description: "Não foi possível exportar os dados.",
         variant: "destructive",
       });
     }
@@ -76,8 +104,8 @@ const PlayerDataForm: React.FC<PlayerDataFormProps> = ({ onSubmit }) => {
       timestamp: new Date().toLocaleString('pt-BR')
     };
 
-    // Save to Excel
-    saveToExcel(playerData);
+    // Save player data
+    savePlayerData(playerData);
     
     // Simulate processing time for better UX
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -150,8 +178,18 @@ const PlayerDataForm: React.FC<PlayerDataFormProps> = ({ onSubmit }) => {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Seus dados serão salvos automaticamente em um arquivo Excel</p>
+          <div className="mt-6 space-y-4">
+            <Button
+              onClick={exportToExcel}
+              variant="outline"
+              className="w-full"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Exportar Dados para Excel
+            </Button>
+            <div className="text-center text-sm text-muted-foreground">
+              <p>Seus dados são salvos automaticamente. Use o botão acima para exportar.</p>
+            </div>
           </div>
         </CardContent>
       </Card>
