@@ -116,7 +116,17 @@ const PlayerDataForm: React.FC<PlayerDataFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-background flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-background flex items-center justify-center p-6 relative">
+      {/* Botão de exportar no canto superior direito */}
+      <Button
+        onClick={exportToExcel}
+        variant="outline"
+        className="absolute top-6 right-6 z-10"
+      >
+        <Download className="w-4 h-4 mr-2" />
+        Exportar
+      </Button>
+      
       <Card className="w-full max-w-md bg-card/90 backdrop-blur-sm border-primary/20 shadow-glow">
         <CardContent className="p-8">
           <div className="text-center mb-8">
@@ -179,18 +189,8 @@ const PlayerDataForm: React.FC<PlayerDataFormProps> = ({ onSubmit }) => {
             </Button>
           </form>
 
-          <div className="mt-6 space-y-4">
-            <Button
-              onClick={exportToExcel}
-              variant="outline"
-              className="w-full"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Exportar Dados para Excel
-            </Button>
-            <div className="text-center text-sm text-muted-foreground">
-              <p>Seus dados são salvos automaticamente. Use o botão acima para exportar.</p>
-            </div>
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <p>Seus dados são salvos automaticamente</p>
           </div>
         </CardContent>
       </Card>
