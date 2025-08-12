@@ -3,9 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UserCheck, Star, Download } from 'lucide-react';
+import { UserCheck, Star } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import * as XLSX from 'xlsx';
 
 interface PlayerData {
   name: string;
@@ -48,41 +47,6 @@ const PlayerDataForm: React.FC<PlayerDataFormProps> = ({ onSubmit }) => {
     }
   };
 
-  const exportToExcel = () => {
-    try {
-      const existingDataStr = localStorage.getItem('gamePlayerData');
-      const existingData: PlayerData[] = existingDataStr ? JSON.parse(existingDataStr) : [];
-      
-      if (existingData.length === 0) {
-        toast({
-          title: "Nenhum dado encontrado",
-          description: "Não há dados de jogadores para exportar.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Create Excel workbook
-      const ws = XLSX.utils.json_to_sheet(existingData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Jogadores');
-      
-      // Download Excel file
-      XLSX.writeFile(wb, 'dados_jogadores_memoria.xlsx');
-      
-      toast({
-        title: "Arquivo exportado!",
-        description: `${existingData.length} registros exportados com sucesso.`,
-      });
-    } catch (error) {
-      console.error('Erro ao exportar dados:', error);
-      toast({
-        title: "Erro ao exportar",
-        description: "Não foi possível exportar os dados.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,18 +142,8 @@ const PlayerDataForm: React.FC<PlayerDataFormProps> = ({ onSubmit }) => {
             </Button>
           </form>
 
-          <div className="mt-6 space-y-4">
-            <Button
-              onClick={exportToExcel}
-              variant="outline"
-              className="w-full"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Exportar Dados para Excel
-            </Button>
-            <div className="text-center text-sm text-muted-foreground">
-              <p>Seus dados são salvos automaticamente. Use o botão acima para exportar.</p>
-            </div>
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <p>Seus dados são salvos automaticamente</p>
           </div>
         </CardContent>
       </Card>
