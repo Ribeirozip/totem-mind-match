@@ -31,48 +31,48 @@ const GAME_PHASES: GamePhase[] = [
     rows: 3,
     cols: 4,
     images: [
-      "public/icons/imagem1.jpeg",
-      "public/icons/imagem2.jpeg",
-      "public/icons/imagem3.jpeg",
-      "public/icons/imagem4.jpeg",
-      "public/icons/imagem5.jpeg",
-      "public/icons/imagem6.jpeg",
+      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
+      "/lovable-uploads/f0d2619c-672e-4924-aa67-749253f55248.png",
+      "/lovable-uploads/7eb6eee9-fe68-4aa8-b746-2955785fd77d.png",
+      "/lovable-uploads/7d3b6914-1e4b-4cfb-87ab-d75e498b52e0.png",
+      "/lovable-uploads/94f4c499-fe62-4cc5-bea8-652df38fbafe.png",
+      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
     ],
-    description: "Fase 1: 4x3 - Números 1 a 6"
+    description: "Fase 1: 4x3 - CEUMA e Símbolos"
   },
   {
     rows: 4,
     cols: 5,
     images: [
-      "public/icons/imagem1.jpeg",
-      "public/icons/imagem2.jpeg",
-      "public/icons/imagem3.jpeg",
-      "public/icons/imagem4.jpeg",
-      "public/icons/imagem5.jpeg",
-      "public/icons/imagem6.jpeg",
-      "public/icons/imagem7.jpeg",
-      "public/icons/imagem8.jpeg",
-      "public/icons/imagem9.jpeg",
-      "public/icons/imagem10.jpeg",
+      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
+      "/lovable-uploads/f0d2619c-672e-4924-aa67-749253f55248.png",
+      "/lovable-uploads/7eb6eee9-fe68-4aa8-b746-2955785fd77d.png",
+      "/lovable-uploads/7d3b6914-1e4b-4cfb-87ab-d75e498b52e0.png",
+      "/lovable-uploads/94f4c499-fe62-4cc5-bea8-652df38fbafe.png",
+      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
+      "/lovable-uploads/f0d2619c-672e-4924-aa67-749253f55248.png",
+      "/lovable-uploads/7eb6eee9-fe68-4aa8-b746-2955785fd77d.png",
+      "/lovable-uploads/7d3b6914-1e4b-4cfb-87ab-d75e498b52e0.png",
+      "/lovable-uploads/94f4c499-fe62-4cc5-bea8-652df38fbafe.png",
     ],
-    description: "Fase 2: 4x5 - Números 1 a 10"
+    description: "Fase 2: 4x5 - Logos e Símbolos"
   },
   {
     rows: 4,
     cols: 5,
     images: [
-      "public/icons/imagem1.jpeg",
-      "public/icons/imagem2.jpeg",
-      "public/icons/imagem3.jpeg",
-      "public/icons/imagem4.jpeg",
-      "public/icons/imagem5.jpeg",
-      "public/icons/imagem6.jpeg",
-      "public/icons/imagem7.jpeg",
-      "public/icons/imagem8.jpeg",
-      "public/icons/imagem9.jpeg",
-      "public/icons/imagem10.jpeg",
+      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
+      "/lovable-uploads/f0d2619c-672e-4924-aa67-749253f55248.png",
+      "/lovable-uploads/7eb6eee9-fe68-4aa8-b746-2955785fd77d.png",
+      "/lovable-uploads/7d3b6914-1e4b-4cfb-87ab-d75e498b52e0.png",
+      "/lovable-uploads/94f4c499-fe62-4cc5-bea8-652df38fbafe.png",
+      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
+      "/lovable-uploads/f0d2619c-672e-4924-aa67-749253f55248.png",
+      "/lovable-uploads/7eb6eee9-fe68-4aa8-b746-2955785fd77d.png",
+      "/lovable-uploads/7d3b6914-1e4b-4cfb-87ab-d75e498b52e0.png",
+      "/lovable-uploads/94f4c499-fe62-4cc5-bea8-652df38fbafe.png",
     ],
-    description: "Fase 3: 4x5 - Números 1 a 10  30s"
+    description: "Fase 3: 4x5 - Logos e Símbolos (30s)"
   }
 ];
 
