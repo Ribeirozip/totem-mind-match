@@ -572,7 +572,7 @@ const MemoryGame: React.FC = () => {
               className="bg-warning text-warning-foreground border-warning hover:bg-warning/90"
             >
               <Eye className="w-5 h-5 mr-2" />
-              Ver Números ({previewUsesLeft})
+              Visualizar figuras ({previewUsesLeft})
             </Button>
           </div>
         )}
