@@ -619,10 +619,8 @@ const MemoryGame: React.FC = () => {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             {showingPreview && (
               <Card className="bg-card/95 backdrop-blur-sm border-primary/20">
-                <CardContent className="p-8 text-center">
-                  <Eye className="w-16 h-16 mx-auto mb-4 text-primary animate-pulse" />
-                  <p className="text-lg text-foreground">Visualização dos números</p>
-                </CardContent>
+        <CardContent className="p-8 text-center">
+        </CardContent>
               </Card>
             )}
           </div>
