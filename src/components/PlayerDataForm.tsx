@@ -85,6 +85,15 @@ const PlayerDataForm: React.FC<PlayerDataFormProps> = ({ onSubmit }) => {
   };
 
 
+  const validatePhoneNumber = (phone: string): boolean => {
+    // Remove all non-digit characters
+    const cleanPhone = phone.replace(/\D/g, '');
+    
+    // Check if it's a valid Brazilian phone number
+    // 11 digits: (11) 99999-9999 or 10 digits: (11) 9999-9999
+    return cleanPhone.length >= 10 && cleanPhone.length <= 11;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -92,6 +101,15 @@ const PlayerDataForm: React.FC<PlayerDataFormProps> = ({ onSubmit }) => {
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha o nome e o número.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validatePhoneNumber(number)) {
+      toast({
+        title: "Número inválido",
+        description: "Por favor, digite um número de telefone válido (10 ou 11 dígitos).",
         variant: "destructive",
       });
       return;
