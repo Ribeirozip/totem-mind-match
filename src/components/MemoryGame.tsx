@@ -228,7 +228,7 @@ const MemoryGame: React.FC = () => {
 
   // Game over by many moves
   useEffect(() => {
-    if (gameState === 'playing' && moves > Math.floor(cards.length / 2) + 30) {
+    if (gameState === 'playing' && moves > Math.floor(cards.length / 2) + 2) {
       setGameState('gameOver');
       toast({
         title: "Fim de jogo 😢",
