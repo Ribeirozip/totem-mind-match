@@ -99,10 +99,8 @@ const MemoryGame: React.FC = () => {
     const totalCards = phase.rows * phase.cols;
     const pairsNeeded = Math.floor(totalCards / 2);
     const selectedImages = phase.images.slice(0, pairsNeeded);
+    // Cada imagem aparece exatamente 2 vezes (um par)
     const images = [...selectedImages, ...selectedImages];
-    if (totalCards % 2 === 1) {
-      images.push(phase.images[pairsNeeded] || phase.images[phase.images.length - 1]);
-    }
     const shuffled = images.sort(() => Math.random() - 0.5);
     return shuffled.map((image, index) => ({
       id: index,
@@ -229,13 +227,19 @@ const MemoryGame: React.FC = () => {
   // Game over by many moves
   useEffect(() => {
     if (gameState === 'playing' && moves > Math.floor(cards.length / 2) + 2) {
+      const totalPairs = Math.floor(cards.length / 2);
+      // Verificar se o usuário completou todos os pares na última tentativa
+      if (matchedPairs === totalPairs) {
+        // Jogador ganhou na última tentativa - não é game over
+        return;
+      }
       setGameState('gameOver');
       toast({
         title: "Fim de jogo 😢",
         description: `Muitas tentativas! Pontuação: ${totalScore + score}`,
       });
     }
-  }, [moves, gameState, totalScore, score, cards.length]);
+  }, [moves, gameState, totalScore, score, cards.length, matchedPairs]);
 
   const handleCardClick = (cardId: number) => {
     // block clicks while not playing or while preview overlay is visible
