@@ -31,48 +31,47 @@ const GAME_PHASES: GamePhase[] = [
     rows: 3,
     cols: 4,
     images: [
-      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
-      "/lovable-uploads/f0d2619c-672e-4924-aa67-749253f55248.png",
-      "/lovable-uploads/7eb6eee9-fe68-4aa8-b746-2955785fd77d.png",
-      "/lovable-uploads/7d3b6914-1e4b-4cfb-87ab-d75e498b52e0.png",
-      "/lovable-uploads/94f4c499-fe62-4cc5-bea8-652df38fbafe.png",
-      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
+      "/lovable-uploads/9903db60-dab1-49fa-8691-cae15e2d0e3b.png",
+      "/lovable-uploads/c6103e1b-9c60-4a04-b028-14749cacfff3.png",
+      "/lovable-uploads/89da2dcd-bfd6-4968-b020-7c033d3f26ff.png",
+      "/lovable-uploads/5613e20a-153b-493b-a0c3-7f2a24f9bb6a.png",
+      "/lovable-uploads/8871319a-9da0-4f6e-8def-cc9e8d00db81.png",
     ],
-    description: "Fase 1: 4x3 - CEUMA e Símbolos"
+    description: "Fase 1: 4x3 - ADS, CEUMA e Símbolos"
   },
   {
     rows: 4,
     cols: 5,
     images: [
-      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
-      "/lovable-uploads/f0d2619c-672e-4924-aa67-749253f55248.png",
-      "/lovable-uploads/7eb6eee9-fe68-4aa8-b746-2955785fd77d.png",
-      "/lovable-uploads/7d3b6914-1e4b-4cfb-87ab-d75e498b52e0.png",
-      "/lovable-uploads/94f4c499-fe62-4cc5-bea8-652df38fbafe.png",
-      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
-      "/lovable-uploads/f0d2619c-672e-4924-aa67-749253f55248.png",
-      "/lovable-uploads/7eb6eee9-fe68-4aa8-b746-2955785fd77d.png",
-      "/lovable-uploads/7d3b6914-1e4b-4cfb-87ab-d75e498b52e0.png",
-      "/lovable-uploads/94f4c499-fe62-4cc5-bea8-652df38fbafe.png",
+      "/lovable-uploads/9903db60-dab1-49fa-8691-cae15e2d0e3b.png",
+      "/lovable-uploads/c6103e1b-9c60-4a04-b028-14749cacfff3.png",
+      "/lovable-uploads/89da2dcd-bfd6-4968-b020-7c033d3f26ff.png",
+      "/lovable-uploads/5613e20a-153b-493b-a0c3-7f2a24f9bb6a.png",
+      "/lovable-uploads/8871319a-9da0-4f6e-8def-cc9e8d00db81.png",
+      "/lovable-uploads/9903db60-dab1-49fa-8691-cae15e2d0e3b.png",
+      "/lovable-uploads/c6103e1b-9c60-4a04-b028-14749cacfff3.png",
+      "/lovable-uploads/89da2dcd-bfd6-4968-b020-7c033d3f26ff.png",
+      "/lovable-uploads/5613e20a-153b-493b-a0c3-7f2a24f9bb6a.png",
+      "/lovable-uploads/8871319a-9da0-4f6e-8def-cc9e8d00db81.png",
     ],
-    description: "Fase 2: 4x5 - Logos e Símbolos"
+    description: "Fase 2: 4x5 - Logos ADS, CEUMA e Símbolos"
   },
   {
     rows: 4,
     cols: 5,
     images: [
-      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
-      "/lovable-uploads/f0d2619c-672e-4924-aa67-749253f55248.png",
-      "/lovable-uploads/7eb6eee9-fe68-4aa8-b746-2955785fd77d.png",
-      "/lovable-uploads/7d3b6914-1e4b-4cfb-87ab-d75e498b52e0.png",
-      "/lovable-uploads/94f4c499-fe62-4cc5-bea8-652df38fbafe.png",
-      "/lovable-uploads/6b04e840-3f97-4e31-8abe-87c08cf0f3b0.png",
-      "/lovable-uploads/f0d2619c-672e-4924-aa67-749253f55248.png",
-      "/lovable-uploads/7eb6eee9-fe68-4aa8-b746-2955785fd77d.png",
-      "/lovable-uploads/7d3b6914-1e4b-4cfb-87ab-d75e498b52e0.png",
-      "/lovable-uploads/94f4c499-fe62-4cc5-bea8-652df38fbafe.png",
+      "/lovable-uploads/9903db60-dab1-49fa-8691-cae15e2d0e3b.png",
+      "/lovable-uploads/c6103e1b-9c60-4a04-b028-14749cacfff3.png",
+      "/lovable-uploads/89da2dcd-bfd6-4968-b020-7c033d3f26ff.png",
+      "/lovable-uploads/5613e20a-153b-493b-a0c3-7f2a24f9bb6a.png",
+      "/lovable-uploads/8871319a-9da0-4f6e-8def-cc9e8d00db81.png",
+      "/lovable-uploads/9903db60-dab1-49fa-8691-cae15e2d0e3b.png",
+      "/lovable-uploads/c6103e1b-9c60-4a04-b028-14749cacfff3.png",
+      "/lovable-uploads/89da2dcd-bfd6-4968-b020-7c033d3f26ff.png",
+      "/lovable-uploads/5613e20a-153b-493b-a0c3-7f2a24f9bb6a.png",
+      "/lovable-uploads/8871319a-9da0-4f6e-8def-cc9e8d00db81.png",
     ],
-    description: "Fase 3: 4x5 - Logos e Símbolos (30s)"
+    description: "Fase 3: 4x5 - Logos ADS, CEUMA e Símbolos (30s)"
   }
 ];
 
