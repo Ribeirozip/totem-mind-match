@@ -31,28 +31,29 @@ const GAME_PHASES: GamePhase[] = [
     rows: 3,
     cols: 4,
     images: [
-      "/lovable-uploads/9903db60-dab1-49fa-8691-cae15e2d0e3b.png",
-      "/lovable-uploads/c6103e1b-9c60-4a04-b028-14749cacfff3.png",
-      "/lovable-uploads/89da2dcd-bfd6-4968-b020-7c033d3f26ff.png",
-      "/lovable-uploads/5613e20a-153b-493b-a0c3-7f2a24f9bb6a.png",
-      "/lovable-uploads/8871319a-9da0-4f6e-8def-cc9e8d00db81.png",
+      "/lovable-uploads/a7b897cb-aee6-47f6-93fb-e3ab8d2d3295.png", // ADS Branco
+      "/lovable-uploads/b4b4fd92-faf9-43e2-acfb-70e2d901b250.png", // ADS Preto
+      "/lovable-uploads/eab82a43-bc39-4fd8-b191-95683e8c703e.png", // CEUMA
+      "/lovable-uploads/17d6b71f-1195-46cc-913e-693f072a375c.png", // Símbolo 1
+      "/lovable-uploads/f712ccf9-72dd-4e72-be37-064a7c628dc7.png", // Símbolo 2
+      "/lovable-uploads/87aaf2c8-0d08-42a2-8c9e-f84f9f93251b.png", // Oxygeni
     ],
-    description: "Fase 1: 4x3 - ADS, CEUMA e Símbolos"
+    description: "Fase 1: 3x4 - ADS, CEUMA e Símbolos"
   },
   {
     rows: 4,
     cols: 5,
     images: [
-      "/lovable-uploads/9903db60-dab1-49fa-8691-cae15e2d0e3b.png",
-      "/lovable-uploads/c6103e1b-9c60-4a04-b028-14749cacfff3.png",
-      "/lovable-uploads/89da2dcd-bfd6-4968-b020-7c033d3f26ff.png",
-      "/lovable-uploads/5613e20a-153b-493b-a0c3-7f2a24f9bb6a.png",
-      "/lovable-uploads/8871319a-9da0-4f6e-8def-cc9e8d00db81.png",
-      "/lovable-uploads/9903db60-dab1-49fa-8691-cae15e2d0e3b.png",
-      "/lovable-uploads/c6103e1b-9c60-4a04-b028-14749cacfff3.png",
-      "/lovable-uploads/89da2dcd-bfd6-4968-b020-7c033d3f26ff.png",
-      "/lovable-uploads/5613e20a-153b-493b-a0c3-7f2a24f9bb6a.png",
-      "/lovable-uploads/8871319a-9da0-4f6e-8def-cc9e8d00db81.png",
+      "/lovable-uploads/a7b897cb-aee6-47f6-93fb-e3ab8d2d3295.png", // ADS Branco
+      "/lovable-uploads/b4b4fd92-faf9-43e2-acfb-70e2d901b250.png", // ADS Preto
+      "/lovable-uploads/eab82a43-bc39-4fd8-b191-95683e8c703e.png", // CEUMA
+      "/lovable-uploads/17d6b71f-1195-46cc-913e-693f072a375c.png", // Símbolo 1
+      "/lovable-uploads/f712ccf9-72dd-4e72-be37-064a7c628dc7.png", // Símbolo 2
+      "/lovable-uploads/87aaf2c8-0d08-42a2-8c9e-f84f9f93251b.png", // Oxygeni
+      "/lovable-uploads/b8e17fac-a14f-4cd1-82a7-74022cd0a010.png", // Ceuma Branco
+      "/lovable-uploads/22ea7d84-3900-4a4e-8d0b-00d21cc028ce.png", // Imagem colada
+      "/lovable-uploads/daf953fc-c4f7-4cad-bcd2-fa7c56c0e8eb.png", // Imagem colada 2
+      "/lovable-uploads/5f768eea-5e0a-4f8e-85e2-8e160c27b409.png", // Incode
     ],
     description: "Fase 2: 4x5 - Logos ADS, CEUMA e Símbolos"
   },
@@ -60,16 +61,16 @@ const GAME_PHASES: GamePhase[] = [
     rows: 4,
     cols: 5,
     images: [
-      "/lovable-uploads/9903db60-dab1-49fa-8691-cae15e2d0e3b.png",
-      "/lovable-uploads/c6103e1b-9c60-4a04-b028-14749cacfff3.png",
-      "/lovable-uploads/89da2dcd-bfd6-4968-b020-7c033d3f26ff.png",
-      "/lovable-uploads/5613e20a-153b-493b-a0c3-7f2a24f9bb6a.png",
-      "/lovable-uploads/8871319a-9da0-4f6e-8def-cc9e8d00db81.png",
-      "/lovable-uploads/9903db60-dab1-49fa-8691-cae15e2d0e3b.png",
-      "/lovable-uploads/c6103e1b-9c60-4a04-b028-14749cacfff3.png",
-      "/lovable-uploads/89da2dcd-bfd6-4968-b020-7c033d3f26ff.png",
-      "/lovable-uploads/5613e20a-153b-493b-a0c3-7f2a24f9bb6a.png",
-      "/lovable-uploads/8871319a-9da0-4f6e-8def-cc9e8d00db81.png",
+      "/lovable-uploads/a7b897cb-aee6-47f6-93fb-e3ab8d2d3295.png", // ADS Branco
+      "/lovable-uploads/b4b4fd92-faf9-43e2-acfb-70e2d901b250.png", // ADS Preto
+      "/lovable-uploads/eab82a43-bc39-4fd8-b191-95683e8c703e.png", // CEUMA
+      "/lovable-uploads/17d6b71f-1195-46cc-913e-693f072a375c.png", // Símbolo 1
+      "/lovable-uploads/f712ccf9-72dd-4e72-be37-064a7c628dc7.png", // Símbolo 2
+      "/lovable-uploads/87aaf2c8-0d08-42a2-8c9e-f84f9f93251b.png", // Oxygeni
+      "/lovable-uploads/b8e17fac-a14f-4cd1-82a7-74022cd0a010.png", // Ceuma Branco
+      "/lovable-uploads/22ea7d84-3900-4a4e-8d0b-00d21cc028ce.png", // Imagem colada
+      "/lovable-uploads/daf953fc-c4f7-4cad-bcd2-fa7c56c0e8eb.png", // Imagem colada 2
+      "/lovable-uploads/5f768eea-5e0a-4f8e-85e2-8e160c27b409.png", // Incode
     ],
     description: "Fase 3: 4x5 - Logos ADS, CEUMA e Símbolos (30s)"
   }
