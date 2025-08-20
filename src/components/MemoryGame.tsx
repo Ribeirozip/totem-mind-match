@@ -338,44 +338,44 @@ const MemoryGame: React.FC = () => {
   // UI: menu
   if (gameState === 'menu') {
     return (
-      <div className="min-h-screen bg-gradient-background flex items-center justify-center p-6">
-        <Card className="w-full max-w-2xl bg-card/90 backdrop-blur-sm border-primary/20 shadow-glow">
-          <CardContent className="p-12 text-center">
+      <div className="min-h-screen bg-gradient-background flex items-center justify-center p-4 md:p-6">
+        <Card className="w-full max-w-2xl mx-2 bg-card/90 backdrop-blur-sm border-primary/20 shadow-glow">
+          <CardContent className="p-6 md:p-12 text-center">
             <div className="animate-bounce-in">
               <Trophy className="w-24 h-24 mx-auto mb-6 text-primary" />
-              <h1 className="text-6xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
                 Jogo da Memória
               </h1>
-              <p className="text-xl text-muted-foreground mb-8">
+              <p className="text-lg md:text-xl text-muted-foreground mb-8">
                 Teste sua memória em 3 fases desafiadoras!
               </p>
               <div className="space-y-4 mb-8">
                 {GAME_PHASES.map((ph, index) => (
-                  <div key={index} className="flex items-center justify-center gap-4 text-lg">
-                    <Badge variant="outline" className="w-16 h-8">
+                  <div key={index} className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-sm md:text-lg">
+                    <Badge variant="outline" className="w-16 h-8 text-xs md:text-sm">
                       Fase {index + 1}
                     </Badge>
-                    <span className="text-foreground">{ph.description}</span>
+                    <span className="text-foreground text-center">{ph.description}</span>
                   </div>
                 ))}
               </div>
               <Button
                 onClick={() => startPhase(0)}
                 size="lg"
-                className="text-2xl px-12 py-6 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
+                className="text-lg md:text-2xl px-8 md:px-12 py-4 md:py-6 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
               >
-                <Star className="w-6 h-6 mr-2" />
+                <Star className="w-5 h-5 md:w-6 md:h-6 mr-2" />
                 Começar Jogo
               </Button>
 
-              <div className="mt-6 flex justify-center gap-4">
+              <div className="mt-6 flex flex-wrap justify-center gap-2 md:gap-4">
                 {GAME_PHASES.map((_, index) => (
                   <Button
                     key={index}
                     onClick={() => startPhase(index)}
                     variant="outline"
                     size="sm"
-                    className="text-sm"
+                    className="text-xs md:text-sm"
                   >
                     Testar Fase {index + 1}
                   </Button>
@@ -529,16 +529,16 @@ const MemoryGame: React.FC = () => {
 
   // Default: playing / preview UI
   return (
-    <div className="min-h-screen bg-gradient-background p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-background p-2 md:p-6">
+      <div className="max-w-6xl mx-auto">
         {/* Game Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
             {phase.description}
           </h1>
-          <div className="flex justify-center gap-8 text-xl">
+          <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-xl">
             <div className="flex items-center gap-2">
-              <Trophy className="w-6 h-6 text-warning" />
+              <Trophy className="w-4 h-4 md:w-6 md:h-6 text-warning" />
               <span className="text-foreground">Pontos: {score}</span>
             </div>
             <div className="flex items-center gap-2">
@@ -547,24 +547,24 @@ const MemoryGame: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="text-foreground">Pares: {matchedPairs}/{Math.floor(cards.length / 2)}</span>
             </div>
-
-            {/* Cronômetro visível apenas na fase 3 (index 2) enquanto jogando */}
-            {currentPhase === 2 && gameState === 'playing' && (
-              <div className="text-center mb-4">
-                <div className="inline-block px-6 py-2 bg-black/70 rounded-xl border border-white/20">
-                  <p className="text-lg text-white font-bold">
-                    Tempo restante: <span className="text-red-500">{countdown}s</span>
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {currentPhase === 2 && timeUp && (
-              <div className="text-center mb-4">
-                <p className="text-red-600 font-semibold text-lg">Tempo esgotado!</p>
-              </div>
-            )}
           </div>
+          
+          {/* Cronômetro visível apenas na fase 3 (index 2) enquanto jogando */}
+          {currentPhase === 2 && gameState === 'playing' && (
+            <div className="text-center mt-4">
+              <div className="inline-block px-4 md:px-6 py-2 bg-black/70 rounded-xl border border-white/20">
+                <p className="text-base md:text-lg text-white font-bold">
+                  Tempo restante: <span className="text-red-500">{countdown}s</span>
+                </p>
+              </div>
+            </div>
+          )}
+
+          {currentPhase === 2 && timeUp && (
+            <div className="text-center mt-4">
+              <p className="text-red-600 font-semibold text-base md:text-lg">Tempo esgotado!</p>
+            </div>
+          )}
         </div>
 
         {/* Preview Button */}
@@ -573,20 +573,24 @@ const MemoryGame: React.FC = () => {
             <Button
               onClick={showPreview}
               variant="outline"
-              className="bg-warning text-warning-foreground border-warning hover:bg-warning/90"
+              size="sm"
+              className="bg-warning text-warning-foreground border-warning hover:bg-warning/90 text-sm md:text-base"
             >
-              <Eye className="w-5 h-5 mr-2" />
-              Visualizar figuras ({previewUsesLeft})
+              <Eye className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+              <span className="hidden sm:inline">Visualizar figuras </span>
+              <span className="sm:hidden">Ver </span>
+              ({previewUsesLeft})
             </Button>
           </div>
         )}
 
         {/* Game Grid */}
         <div
-          className="grid gap-4 mx-auto max-w-3xl"
+          className="grid gap-2 md:gap-4 mx-auto px-2 md:px-0"
           style={{
             gridTemplateColumns: `repeat(${phase.cols}, 1fr)`,
-            gridTemplateRows: `repeat(${phase.rows}, 1fr)`
+            gridTemplateRows: `repeat(${phase.rows}, 1fr)`,
+            maxWidth: phase.cols > 4 ? '100%' : '600px'
           }}
         >
           {cards.map((card) => (
@@ -594,8 +598,8 @@ const MemoryGame: React.FC = () => {
               key={card.id}
               onClick={() => handleCardClick(card.id)}
               className={`
-                aspect-square rounded-2xl cursor-pointer transition-all duration- hover:scale-105
-                flex items-center justify-center text-4xl font-bold shadow-card
+                aspect-square rounded-lg md:rounded-2xl cursor-pointer transition-all duration-300 hover:scale-105
+                flex items-center justify-center text-2xl md:text-4xl font-bold shadow-card
                 ${card.isMatched 
                   ? 'bg-gradient-success text-success-foreground animate-card-match' 
                   : card.isFlipped || showingPreview
