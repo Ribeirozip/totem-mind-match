@@ -477,36 +477,36 @@ const MemoryGame: React.FC = () => {
     const isLastPhase = currentPhase === GAME_PHASES.length - 1;
 
     return (
-      <div className="min-h-screen bg-gradient-background flex items-center justify-center p-6">
-        <Card className="w-full max-w-2xl bg-card/90 backdrop-blur-sm border-success/20 shadow-glow">
-          <CardContent className="p-12 text-center">
+      <div className="min-h-screen bg-gradient-background flex items-center justify-center p-4 md:p-6">
+        <Card className="w-full max-w-2xl mx-2 bg-card/90 backdrop-blur-sm border-success/20 shadow-glow">
+          <CardContent className="p-6 md:p-12 text-center">
             <div className="animate-scale-in">
               <div className="text-8xl mb-6 animate-pulse">🎉</div>
-              <h1 className="text-5xl font-bold mb-4 bg-gradient-success bg-clip-text text-transparent">
+              <h1 className="text-3xl md:text-5xl font-bold mb-4 bg-gradient-success bg-clip-text text-transparent">
                 Fase {currentPhase + 1} Completada!
               </h1>
-              <p className="text-xl text-muted-foreground mb-6">
+              <p className="text-lg md:text-xl text-muted-foreground mb-6">
                 Excelente trabalho!
               </p>
 
               <div className="space-y-4 mb-8">
-                <div className="text-2xl font-bold text-foreground">
+                <div className="text-lg md:text-2xl font-bold text-foreground">
                   Pontos da Fase: {score}
                 </div>
-                <div className="text-2xl font-bold text-success">
+                <div className="text-lg md:text-2xl font-bold text-success">
                   Bônus Eficiência: {phaseScore}
                 </div>
-                <div className="text-3xl font-bold text-primary">
+                <div className="text-xl md:text-3xl font-bold text-primary">
                   Total: {totalScore + score + phaseScore}
                 </div>
               </div>
 
               {!isLastPhase && (
-                <div className="mb-8 p-6 bg-primary/10 rounded-xl border border-primary/20">
-                  <h3 className="text-2xl font-bold text-primary mb-2">
+                <div className="mb-8 p-4 md:p-6 bg-primary/10 rounded-xl border border-primary/20">
+                  <h3 className="text-lg md:text-2xl font-bold text-primary mb-2">
                     Próxima Fase:
                   </h3>
-                  <p className="text-lg text-foreground">
+                  <p className="text-base md:text-lg text-foreground">
                     {GAME_PHASES[currentPhase + 1].description}
                   </p>
                 </div>
@@ -515,10 +515,10 @@ const MemoryGame: React.FC = () => {
               <Button
                 onClick={proceedToNextPhase}
                 size="lg"
-                className="text-2xl px-12 py-6 bg-gradient-primary hover:scale-105 transition-transform shadow-button"
+                className="text-lg md:text-2xl px-8 md:px-12 py-4 md:py-6 bg-gradient-primary hover:scale-105 transition-transform shadow-button w-full sm:w-auto"
               >
                 {isLastPhase ? 'Ver Resultado Final' : 'Continuar para Próxima Fase'}
-                <Star className="w-6 h-6 ml-2" />
+                <Star className="w-5 h-5 md:w-6 md:h-6 ml-2" />
               </Button>
             </div>
           </CardContent>
