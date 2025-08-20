@@ -90,10 +90,13 @@ const MemoryGame: React.FC = () => {
   const [totalScore, setTotalScore] = useState(0);
   const [previewUsesLeft, setPreviewUsesLeft] = useState(2);
   const [previewCountdown, setPreviewCountdown] = useState(0);
+  const [efficiencyBonus, setEfficiencyBonus] = useState(1000);
+  const [phaseStartTime, setPhaseStartTime] = useState(0);
 
   const [countdown, setCountdown] = useState(30);
   const [timeUp, setTimeUp] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const efficiencyTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const createCards = useCallback((phase: GamePhase): GameCard[] => {
     const totalCards = phase.rows * phase.cols;
@@ -118,6 +121,8 @@ const MemoryGame: React.FC = () => {
     setMatchedPairs(0);
     setMoves(0);
     setScore(0);
+    setEfficiencyBonus(1000); // Reset efficiency bonus to 1000
+    setPhaseStartTime(Date.now()); // Record phase start time
     setGameState('preview');
     setShowingPreview(true);
     setShowOverlay(true);
@@ -162,6 +167,27 @@ const MemoryGame: React.FC = () => {
     // Switch temporarily to preview state to pause timer effect
     setGameState('preview');
   };
+
+  // Efficiency timer: decreases bonus by 50 every 30s during playing state
+  useEffect(() => {
+    const clearEfficiencyTimer = () => {
+      if (efficiencyTimerRef.current) {
+        clearInterval(efficiencyTimerRef.current);
+        efficiencyTimerRef.current = null;
+      }
+    };
+
+    if (gameState === 'playing') {
+      clearEfficiencyTimer();
+      efficiencyTimerRef.current = setInterval(() => {
+        setEfficiencyBonus(prev => Math.max(0, prev - 50));
+      }, 30000); // 30 seconds
+    } else {
+      clearEfficiencyTimer();
+    }
+
+    return () => clearEfficiencyTimer();
+  }, [gameState]);
 
   // Timer effect for phase 3: starts only when currentPhase === 2 and gameState === 'playing'
   useEffect(() => {
@@ -274,6 +300,9 @@ const MemoryGame: React.FC = () => {
           setScore(prev => prev + 100);
           toast({ title: "Par encontrado! 🎉", description: "+100 pontos" });
         } else {
+          // error - deduct 50 points from score
+          setScore(prev => Math.max(0, prev - 50));
+          toast({ title: "Erro! 😞", description: "-50 pontos" });
           // flip back
           setCards(prev => prev.map(c =>
             (c.id === firstId || c.id === secondId) ? { ...c, isFlipped: false } : c
@@ -315,8 +344,7 @@ const MemoryGame: React.FC = () => {
   const nextPhase = () => setGameState('phaseCompleted');
 
   const proceedToNextPhase = () => {
-    const phaseScore = Math.max(0, 1000 - (moves * 10));
-    const newTotalScore = totalScore + score + phaseScore;
+    const newTotalScore = totalScore + score + efficiencyBonus;
     setTotalScore(newTotalScore);
 
     const nextIndex = currentPhase + 1;
@@ -473,7 +501,6 @@ const MemoryGame: React.FC = () => {
 
   // UI: phaseCompleted
   if (gameState === 'phaseCompleted') {
-    const phaseScore = Math.max(0, 1000 - (moves * 10));
     const isLastPhase = currentPhase === GAME_PHASES.length - 1;
 
     return (
@@ -494,10 +521,10 @@ const MemoryGame: React.FC = () => {
                   Pontos da Fase: {score}
                 </div>
                 <div className="text-lg md:text-2xl font-bold text-success">
-                  Bônus Eficiência: {phaseScore}
+                  Bônus Eficiência: {efficiencyBonus}
                 </div>
                 <div className="text-xl md:text-3xl font-bold text-primary">
-                  Total: {totalScore + score + phaseScore}
+                  Total: {totalScore + score + efficiencyBonus}
                 </div>
               </div>
 
@@ -546,6 +573,10 @@ const MemoryGame: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-foreground">Pares: {matchedPairs}/{Math.floor(cards.length / 2)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="w-4 h-4 md:w-6 md:h-6 text-success" />
+              <span className="text-foreground">Bônus: {efficiencyBonus}</span>
             </div>
           </div>
           
