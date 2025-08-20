@@ -181,7 +181,7 @@ const MemoryGame: React.FC = () => {
       clearEfficiencyTimer();
       efficiencyTimerRef.current = setInterval(() => {
         setEfficiencyBonus(prev => Math.max(0, prev - 50));
-      }, 30000); // 30 seconds
+      }, 20000); // 20 seconds
     } else {
       clearEfficiencyTimer();
     }
@@ -302,7 +302,6 @@ const MemoryGame: React.FC = () => {
         } else {
           // error - deduct 50 points from score
           setScore(prev => Math.max(0, prev - 50));
-          toast({ title: "Erro! 😞", description: "-50 pontos" });
           // flip back
           setCards(prev => prev.map(c =>
             (c.id === firstId || c.id === secondId) ? { ...c, isFlipped: false } : c
@@ -573,10 +572,6 @@ const MemoryGame: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-foreground">Pares: {matchedPairs}/{Math.floor(cards.length / 2)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 md:w-6 md:h-6 text-success" />
-              <span className="text-foreground">Bônus: {efficiencyBonus}</span>
             </div>
           </div>
           
