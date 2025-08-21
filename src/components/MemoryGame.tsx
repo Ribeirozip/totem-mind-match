@@ -310,7 +310,7 @@ const MemoryGame: React.FC = () => {
           ));
         }
         setFlippedCards([]);
-      }, 3000);
+      }, 1500);
     }
   };
 
@@ -626,7 +626,7 @@ const MemoryGame: React.FC = () => {
               key={card.id}
               onClick={() => handleCardClick(card.id)}
               className={`
-                aspect-square rounded-lg md:rounded-2xl cursor-pointer transition-all duration-150 hover:scale-105
+                aspect-square rounded-lg md:rounded-2xl cursor-pointer transition-all duration-100 hover:scale-105
                 flex items-center justify-center text-2xl md:text-4xl font-bold shadow-card
                 ${card.isMatched 
                   ? 'bg-gradient-success text-success-foreground animate-card-match' 
@@ -642,6 +642,8 @@ const MemoryGame: React.FC = () => {
                   src={card.image}
                   alt="Imagem do card"
                   className="w-3/4 h-3/4 object-contain"
+                  loading="eager"
+                  decoding="sync"
                 />
               ) : (
                 '?'
