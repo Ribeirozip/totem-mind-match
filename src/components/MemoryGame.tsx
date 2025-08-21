@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useReducer } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { Eye, RotateCcw, Trophy, Star } from 'lucide-react';
 import PlayerDataForm from './PlayerDataForm';
+import GameCard from './GameCard';
+import { useImagePreloader } from '@/hooks/useImagePreloader';
+import { useGameTimer } from '@/hooks/useGameTimer';
 
 interface GameCard {
   id: number;
@@ -76,27 +79,130 @@ const GAME_PHASES: GamePhase[] = [
   }
 ];
 
-const MemoryGame: React.FC = () => {
-  const [currentPhase, setCurrentPhase] = useState(0);
-  const [cards, setCards] = useState<GameCard[]>([]);
-  const [flippedCards, setFlippedCards] = useState<number[]>([]);
-  const [matchedPairs, setMatchedPairs] = useState(0);
-  const [score, setScore] = useState(0);
-  const [moves, setMoves] = useState(0);
-  const [gameState, setGameState] = useState<'dataEntry' | 'menu' | 'preview' | 'playing' | 'phaseCompleted' | 'completed' | 'gameOver'>('dataEntry');
-  const [playerData, setPlayerData] = useState<PlayerData | null>(null);
-  const [showingPreview, setShowingPreview] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(false);
-  const [totalScore, setTotalScore] = useState(0);
-  const [previewUsesLeft, setPreviewUsesLeft] = useState(2);
-  const [previewCountdown, setPreviewCountdown] = useState(0);
-  const [efficiencyBonus, setEfficiencyBonus] = useState(1000);
-  const [phaseStartTime, setPhaseStartTime] = useState(0);
+interface GameState {
+  currentPhase: number;
+  cards: GameCard[];
+  flippedCards: number[];
+  matchedPairs: number;
+  score: number;
+  moves: number;
+  gameState: 'dataEntry' | 'menu' | 'preview' | 'playing' | 'phaseCompleted' | 'completed' | 'gameOver';
+  playerData: PlayerData | null;
+  showingPreview: boolean;
+  showOverlay: boolean;
+  totalScore: number;
+  previewUsesLeft: number;
+  previewCountdown: number;
+  efficiencyBonus: number;
+  phaseStartTime: number;
+  countdown: number;
+  timeUp: boolean;
+}
 
-  const [countdown, setCountdown] = useState(30);
-  const [timeUp, setTimeUp] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const efficiencyTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+type GameAction = 
+  | { type: 'SET_PHASE'; payload: number }
+  | { type: 'SET_CARDS'; payload: GameCard[] }
+  | { type: 'SET_FLIPPED_CARDS'; payload: number[] }
+  | { type: 'SET_MATCHED_PAIRS'; payload: number }
+  | { type: 'SET_SCORE'; payload: number }
+  | { type: 'SET_MOVES'; payload: number }
+  | { type: 'SET_GAME_STATE'; payload: GameState['gameState'] }
+  | { type: 'SET_PLAYER_DATA'; payload: PlayerData }
+  | { type: 'SET_SHOWING_PREVIEW'; payload: boolean }
+  | { type: 'SET_SHOW_OVERLAY'; payload: boolean }
+  | { type: 'SET_TOTAL_SCORE'; payload: number }
+  | { type: 'SET_PREVIEW_USES_LEFT'; payload: number }
+  | { type: 'SET_PREVIEW_COUNTDOWN'; payload: number }
+  | { type: 'SET_EFFICIENCY_BONUS'; payload: number }
+  | { type: 'SET_PHASE_START_TIME'; payload: number }
+  | { type: 'SET_COUNTDOWN'; payload: number }
+  | { type: 'SET_TIME_UP'; payload: boolean }
+  | { type: 'RESET_GAME' }
+  | { type: 'INCREMENT_MATCHED_PAIRS' }
+  | { type: 'INCREMENT_MOVES' }
+  | { type: 'DECREMENT_PREVIEW_USES' }
+  | { type: 'ADD_SCORE'; payload: number };
+
+const initialState: GameState = {
+  currentPhase: 0,
+  cards: [],
+  flippedCards: [],
+  matchedPairs: 0,
+  score: 0,
+  moves: 0,
+  gameState: 'dataEntry',
+  playerData: null,
+  showingPreview: false,
+  showOverlay: false,
+  totalScore: 0,
+  previewUsesLeft: 2,
+  previewCountdown: 0,
+  efficiencyBonus: 1000,
+  phaseStartTime: 0,
+  countdown: 30,
+  timeUp: false,
+};
+
+const gameReducer = (state: GameState, action: GameAction): GameState => {
+  switch (action.type) {
+    case 'SET_PHASE':
+      return { ...state, currentPhase: action.payload };
+    case 'SET_CARDS':
+      return { ...state, cards: action.payload };
+    case 'SET_FLIPPED_CARDS':
+      return { ...state, flippedCards: action.payload };
+    case 'SET_MATCHED_PAIRS':
+      return { ...state, matchedPairs: action.payload };
+    case 'SET_SCORE':
+      return { ...state, score: action.payload };
+    case 'SET_MOVES':
+      return { ...state, moves: action.payload };
+    case 'SET_GAME_STATE':
+      return { ...state, gameState: action.payload };
+    case 'SET_PLAYER_DATA':
+      return { ...state, playerData: action.payload };
+    case 'SET_SHOWING_PREVIEW':
+      return { ...state, showingPreview: action.payload };
+    case 'SET_SHOW_OVERLAY':
+      return { ...state, showOverlay: action.payload };
+    case 'SET_TOTAL_SCORE':
+      return { ...state, totalScore: action.payload };
+    case 'SET_PREVIEW_USES_LEFT':
+      return { ...state, previewUsesLeft: action.payload };
+    case 'SET_PREVIEW_COUNTDOWN':
+      return { ...state, previewCountdown: action.payload };
+    case 'SET_EFFICIENCY_BONUS':
+      return { ...state, efficiencyBonus: action.payload };
+    case 'SET_PHASE_START_TIME':
+      return { ...state, phaseStartTime: action.payload };
+    case 'SET_COUNTDOWN':
+      return { ...state, countdown: action.payload };
+    case 'SET_TIME_UP':
+      return { ...state, timeUp: action.payload };
+    case 'INCREMENT_MATCHED_PAIRS':
+      return { ...state, matchedPairs: state.matchedPairs + 1 };
+    case 'INCREMENT_MOVES':
+      return { ...state, moves: state.moves + 1 };
+    case 'DECREMENT_PREVIEW_USES':
+      return { ...state, previewUsesLeft: state.previewUsesLeft - 1 };
+    case 'ADD_SCORE':
+      return { ...state, score: Math.max(0, state.score + action.payload) };
+    case 'RESET_GAME':
+      return { ...initialState };
+    default:
+      return state;
+  }
+};
+
+const MemoryGame: React.FC = () => {
+  const [state, dispatch] = useReducer(gameReducer, initialState);
+  const efficiencyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { startTimer: startCountdownTimer, clearTimer: clearCountdownTimer } = useGameTimer();
+  const { startTimer: startEfficiencyTimer, clearTimer: clearEfficiencyTimer } = useGameTimer();
+
+  // Preload images for current phase
+  const currentPhaseImages = GAME_PHASES[state.currentPhase]?.images || [];
+  useImagePreloader(currentPhaseImages);
 
   const createCards = useCallback((phase: GamePhase): GameCard[] => {
     const totalCards = phase.rows * phase.cols;
@@ -115,257 +221,236 @@ const MemoryGame: React.FC = () => {
   const startPhase = useCallback((phaseIndex: number) => {
     const phase = GAME_PHASES[phaseIndex];
     const newCards = createCards(phase);
-    setCurrentPhase(phaseIndex);
-    setCards(newCards);
-    setFlippedCards([]);
-    setMatchedPairs(0);
-    setMoves(0);
-    setScore(0);
-    setEfficiencyBonus(1000); // Reset efficiency bonus to 1000
-    setPhaseStartTime(Date.now()); // Record phase start time
-    setGameState('preview');
-    setShowingPreview(true);
-    setShowOverlay(true);
+    dispatch({ type: 'SET_PHASE', payload: phaseIndex });
+    dispatch({ type: 'SET_CARDS', payload: newCards });
+    dispatch({ type: 'SET_FLIPPED_CARDS', payload: [] });
+    dispatch({ type: 'SET_MATCHED_PAIRS', payload: 0 });
+    dispatch({ type: 'SET_MOVES', payload: 0 });
+    dispatch({ type: 'SET_SCORE', payload: 0 });
+    dispatch({ type: 'SET_EFFICIENCY_BONUS', payload: 1000 });
+    dispatch({ type: 'SET_PHASE_START_TIME', payload: Date.now() });
+    dispatch({ type: 'SET_GAME_STATE', payload: 'preview' });
+    dispatch({ type: 'SET_SHOWING_PREVIEW', payload: true });
+    dispatch({ type: 'SET_SHOW_OVERLAY', payload: true });
+    
     // initial preview duration 1.5s
     setTimeout(() => {
-      setShowingPreview(false);
-      setShowOverlay(false);
-      setGameState('playing');
+      dispatch({ type: 'SET_SHOWING_PREVIEW', payload: false });
+      dispatch({ type: 'SET_SHOW_OVERLAY', payload: false });
+      dispatch({ type: 'SET_GAME_STATE', payload: 'playing' });
     }, 1500);
+    
     // If it's phase 3, preset the countdown to 30 (will be used when playing)
     if (phaseIndex === 2) {
-      setCountdown(30);
-      setTimeUp(false);
+      dispatch({ type: 'SET_COUNTDOWN', payload: 30 });
+      dispatch({ type: 'SET_TIME_UP', payload: false });
     }
   }, [createCards]);
 
   // Initialize game from menu (starts currentPhase)
   const initializeGame = useCallback(() => {
-    startPhase(currentPhase);
-  }, [currentPhase, startPhase]);
+    startPhase(state.currentPhase);
+  }, [state.currentPhase, startPhase]);
 
   // Show preview on button click (2s) — overlay visible while preview shown
   const showPreview = () => {
-    if (previewUsesLeft <= 0 || gameState !== 'playing') return;
-    setPreviewUsesLeft(prev => prev - 1);
-    setPreviewCountdown(2);
-    setShowingPreview(true);
-    setShowOverlay(true);
-    const countdownInterval = setInterval(() => {
-      setPreviewCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(countdownInterval);
-          setShowingPreview(false);
-          setShowOverlay(false);
-          // return to playing
-          setGameState('playing');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    // Switch temporarily to preview state to pause timer effect
-    setGameState('preview');
+    if (state.previewUsesLeft <= 0 || state.gameState !== 'playing') return;
+    dispatch({ type: 'DECREMENT_PREVIEW_USES' });
+    dispatch({ type: 'SET_PREVIEW_COUNTDOWN', payload: 2 });
+    dispatch({ type: 'SET_SHOWING_PREVIEW', payload: true });
+    dispatch({ type: 'SET_SHOW_OVERLAY', payload: true });
+    dispatch({ type: 'SET_GAME_STATE', payload: 'preview' });
+    
+    const countdownTick = () => {
+      dispatch({ type: 'SET_PREVIEW_COUNTDOWN', payload: state.previewCountdown - 1 });
+      if (state.previewCountdown <= 1) {
+        dispatch({ type: 'SET_SHOWING_PREVIEW', payload: false });
+        dispatch({ type: 'SET_SHOW_OVERLAY', payload: false });
+        dispatch({ type: 'SET_GAME_STATE', payload: 'playing' });
+      } else {
+        setTimeout(countdownTick, 1000);
+      }
+    };
+    
+    setTimeout(countdownTick, 1000);
   };
 
   // Efficiency timer: decreases bonus by 50 based on phase (10s for phase 1, 15s for phases 2&3)
   useEffect(() => {
-    const clearEfficiencyTimer = () => {
-      if (efficiencyTimerRef.current) {
-        clearInterval(efficiencyTimerRef.current);
-        efficiencyTimerRef.current = null;
-      }
-    };
-
-    if (gameState === 'playing') {
+    if (state.gameState === 'playing') {
       clearEfficiencyTimer();
       // Phase 1: 10 seconds, Phases 2&3: 15 seconds
-      const timerInterval = currentPhase === 0 ? 10000 : 15000;
-      efficiencyTimerRef.current = setInterval(() => {
-        setEfficiencyBonus(prev => Math.max(0, prev - 50));
-      }, timerInterval);
+      const timerInterval = state.currentPhase === 0 ? 10000 : 15000;
+      
+      const efficiencyTick = () => {
+        dispatch({ type: 'SET_EFFICIENCY_BONUS', payload: Math.max(0, state.efficiencyBonus - 50) });
+        if (state.gameState === 'playing') {
+          setTimeout(efficiencyTick, timerInterval);
+        }
+      };
+      
+      setTimeout(efficiencyTick, timerInterval);
     } else {
       clearEfficiencyTimer();
     }
 
     return () => clearEfficiencyTimer();
-  }, [gameState, currentPhase]);
+  }, [state.gameState, state.currentPhase, clearEfficiencyTimer]);
 
   // Timer effect for phase 3: starts only when currentPhase === 2 and gameState === 'playing'
   useEffect(() => {
-    // Cleanup any previous timer
-    const clearTimer = () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-
-    if (currentPhase === 2 && gameState === 'playing') {
-      // start/continue timer (do NOT reset countdown here — countdown was set when entering phase)
-      setTimeUp(false);
-      // ensure no duplicate intervals
-      clearTimer();
-      timerRef.current = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
-            // time finished
-            clearTimer();
-            setTimeUp(true);
-            const totalPairs = Math.floor(cards.length / 2);
-            // only game over if still missing pairs
-            if (matchedPairs < totalPairs) {
-              setGameState('gameOver');
-              toast({
-                title: "Tempo esgotado!",
-                description: "Você não encontrou todos os pares a tempo.",
-              });
-            }
-            return 0;
+    if (state.currentPhase === 2 && state.gameState === 'playing') {
+      dispatch({ type: 'SET_TIME_UP', payload: false });
+      clearCountdownTimer();
+      
+      const countdownTick = () => {
+        dispatch({ type: 'SET_COUNTDOWN', payload: state.countdown - 1 });
+        if (state.countdown <= 1) {
+          dispatch({ type: 'SET_TIME_UP', payload: true });
+          const totalPairs = Math.floor(state.cards.length / 2);
+          // only game over if still missing pairs
+          if (state.matchedPairs < totalPairs) {
+            dispatch({ type: 'SET_GAME_STATE', payload: 'gameOver' });
+            toast({
+              title: "Tempo esgotado!",
+              description: "Você não encontrou todos os pares a tempo.",
+            });
           }
-          return prev - 1;
-        });
-      }, 1000);
+        } else if (state.gameState === 'playing') {
+          setTimeout(countdownTick, 1000);
+        }
+      };
+      
+      setTimeout(countdownTick, 1000);
     } else {
-      // not playing in phase 3 — ensure timer paused/cleared
-      clearTimer();
+      clearCountdownTimer();
     }
 
-    return () => clearTimer();
-  }, [currentPhase, gameState, matchedPairs, cards.length]);
+    return () => clearCountdownTimer();
+  }, [state.currentPhase, state.gameState, state.matchedPairs, state.cards.length, clearCountdownTimer]);
 
   // When all pairs are found -> advance to phaseCompleted
   useEffect(() => {
-    if (gameState === 'playing' && cards.length > 0) {
-      const totalPairs = Math.floor(cards.length / 2);
-      if (matchedPairs === totalPairs) {
-        // clear timer if any
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-          timerRef.current = null;
-        }
+    if (state.gameState === 'playing' && state.cards.length > 0) {
+      const totalPairs = Math.floor(state.cards.length / 2);
+      if (state.matchedPairs === totalPairs) {
+        clearCountdownTimer();
         // small delay to show last match
         setTimeout(() => {
-          setGameState('phaseCompleted');
+          dispatch({ type: 'SET_GAME_STATE', payload: 'phaseCompleted' });
         }, 800);
       }
     }
-  }, [matchedPairs, cards.length, gameState]);
+  }, [state.matchedPairs, state.cards.length, state.gameState, clearCountdownTimer]);
 
   // Game over by many moves
   useEffect(() => {
-    if (gameState === 'playing' && moves > Math.floor(cards.length / 2) + 2) {
-      const totalPairs = Math.floor(cards.length / 2);
+    if (state.gameState === 'playing' && state.moves > Math.floor(state.cards.length / 2) + 2) {
+      const totalPairs = Math.floor(state.cards.length / 2);
       // Verificar se o usuário completou todos os pares na última tentativa
-      if (matchedPairs === totalPairs) {
+      if (state.matchedPairs === totalPairs) {
         // Jogador ganhou na última tentativa - não é game over
         return;
       }
-      setGameState('gameOver');
+      dispatch({ type: 'SET_GAME_STATE', payload: 'gameOver' });
       toast({
         title: "Fim de jogo 😢",
-        description: `Muitas tentativas! Pontuação: ${totalScore + score}`,
+        description: `Muitas tentativas! Pontuação: ${state.totalScore + state.score}`,
       });
     }
-  }, [moves, gameState, totalScore, score, cards.length, matchedPairs]);
+  }, [state.moves, state.gameState, state.totalScore, state.score, state.cards.length, state.matchedPairs]);
 
   const handleCardClick = (cardId: number) => {
     // block clicks while not playing or while preview overlay is visible
-    if (gameState !== 'playing' || showingPreview || showOverlay) return;
-    if (flippedCards.includes(cardId)) return;
+    if (state.gameState !== 'playing' || state.showingPreview || state.showOverlay) return;
+    if (state.flippedCards.includes(cardId)) return;
 
-    const card = cards.find(c => c.id === cardId);
+    const card = state.cards.find(c => c.id === cardId);
     if (!card || card.isMatched) return;
 
     // CORREÇÃO: Bloquear mais de 2 cliques simultâneos
-    if (flippedCards.length >= 2) return;
+    if (state.flippedCards.length >= 2) return;
 
-    const newFlipped = [...flippedCards, cardId];
-    setFlippedCards(newFlipped);
+    const newFlipped = [...state.flippedCards, cardId];
+    dispatch({ type: 'SET_FLIPPED_CARDS', payload: newFlipped });
 
-    // flip visually
-    setCards(prev => prev.map(c => c.id === cardId ? { ...c, isFlipped: true } : c));
+    // flip visually with red shadow for incorrect pairs
+    dispatch({ type: 'SET_CARDS', payload: state.cards.map(c => 
+      c.id === cardId ? { ...c, isFlipped: true } : c
+    )});
 
     if (newFlipped.length === 2) {
-      setMoves(prev => prev + 1);
+      dispatch({ type: 'INCREMENT_MOVES' });
       const [firstId, secondId] = newFlipped;
-      const firstCard = cards.find(c => c.id === firstId);
-      const secondCard = cards.find(c => c.id === secondId);
+      const firstCard = state.cards.find(c => c.id === firstId);
+      const secondCard = state.cards.find(c => c.id === secondId);
 
       setTimeout(() => {
         if (firstCard && secondCard && firstCard.image === secondCard.image) {
-          // match
-          setCards(prev => prev.map(c =>
+          // match - add green glow effect
+          dispatch({ type: 'SET_CARDS', payload: state.cards.map(c =>
             (c.id === firstId || c.id === secondId) ? { ...c, isMatched: true, isFlipped: true } : c
-          ));
-          setMatchedPairs(prev => prev + 1);
-          setScore(prev => prev + 100);
-          toast({ title: "Par encontrado! 🎉", description: "+100 pontos" });
+          )});
+          dispatch({ type: 'INCREMENT_MATCHED_PAIRS' });
+          dispatch({ type: 'ADD_SCORE', payload: 100 });
+          toast({ 
+            title: "Par encontrado! 🎉", 
+            description: "+100 pontos",
+            className: "border-green-500 bg-green-50 text-green-900" 
+          });
         } else {
-          // error - deduct 50 points from score
-          setScore(prev => Math.max(0, prev - 50));
+          // error - deduct 50 points from score with red feedback
+          dispatch({ type: 'ADD_SCORE', payload: -50 });
           // flip back
-          setCards(prev => prev.map(c =>
+          dispatch({ type: 'SET_CARDS', payload: state.cards.map(c =>
             (c.id === firstId || c.id === secondId) ? { ...c, isFlipped: false } : c
-          ));
+          )});
+          toast({ 
+            title: "Tente novamente! ❌", 
+            description: "-50 pontos",
+            className: "border-red-500 bg-red-50 text-red-900" 
+          });
         }
-        setFlippedCards([]);
+        dispatch({ type: 'SET_FLIPPED_CARDS', payload: [] });
       }, 1500);
     }
   };
 
   const resetGame = () => {
-    // clear timer
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    setCurrentPhase(0);
-    setCards([]);
-    setFlippedCards([]);
-    setMatchedPairs(0);
-    setScore(0);
-    setTotalScore(0);
-    setMoves(0);
-    setGameState('dataEntry');
-    setPlayerData(null);
-    setShowingPreview(false);
-    setShowOverlay(false);
-    setPreviewUsesLeft(2);
-    setPreviewCountdown(0);
-    setCountdown(30);
-    setTimeUp(false);
+    clearCountdownTimer();
+    clearEfficiencyTimer();
+    dispatch({ type: 'RESET_GAME' });
   };
 
   const handlePlayerDataSubmit = (data: PlayerData) => {
-    setPlayerData(data);
-    setGameState('menu');
+    dispatch({ type: 'SET_PLAYER_DATA', payload: data });
+    dispatch({ type: 'SET_GAME_STATE', payload: 'menu' });
   };
 
-  const nextPhase = () => setGameState('phaseCompleted');
+  const nextPhase = () => dispatch({ type: 'SET_GAME_STATE', payload: 'phaseCompleted' });
 
   const proceedToNextPhase = () => {
-    const newTotalScore = totalScore + score + efficiencyBonus;
-    setTotalScore(newTotalScore);
+    const newTotalScore = state.totalScore + state.score + state.efficiencyBonus;
+    dispatch({ type: 'SET_TOTAL_SCORE', payload: newTotalScore });
 
-    const nextIndex = currentPhase + 1;
+    const nextIndex = state.currentPhase + 1;
     if (nextIndex < GAME_PHASES.length) {
       // start next phase
       startPhase(nextIndex);
     } else {
-      setGameState('completed');
+      dispatch({ type: 'SET_GAME_STATE', payload: 'completed' });
     }
   };
 
-  const phase = GAME_PHASES[currentPhase];
+  const phase = GAME_PHASES[state.currentPhase];
 
   // UI: data entry
-  if (gameState === 'dataEntry') {
+  if (state.gameState === 'dataEntry') {
     return <PlayerDataForm onSubmit={handlePlayerDataSubmit} />;
   }
 
   // UI: menu
-  if (gameState === 'menu') {
+  if (state.gameState === 'menu') {
     return (
       <div className="min-h-screen bg-gradient-background flex items-center justify-center p-4 md:p-6">
         <Card className="w-full max-w-2xl mx-2 bg-card/90 backdrop-blur-sm border-primary/20 shadow-glow">
@@ -418,7 +503,7 @@ const MemoryGame: React.FC = () => {
   }
 
   // UI: completed
-  if (gameState === 'completed') {
+  if (state.gameState === 'completed') {
     return (
       <div className="min-h-screen bg-gradient-background flex items-center justify-center p-6">
         <Card className="w-full max-w-2xl bg-card/90 backdrop-blur-sm border-success/20 shadow-glow">
@@ -432,7 +517,7 @@ const MemoryGame: React.FC = () => {
                 Você completou todas as fases!
               </p>
               <div className="text-4xl font-bold text-success mb-8">
-                Pontuação Final: {totalScore}
+                Pontuação Final: {state.totalScore}
               </div>
               <div className="flex gap-4 justify-center">
                 <Button
@@ -443,7 +528,7 @@ const MemoryGame: React.FC = () => {
                   Novo Jogo
                 </Button>
                 <Button
-                  onClick={() => setGameState('dataEntry')}
+                  onClick={() => dispatch({ type: 'SET_GAME_STATE', payload: 'dataEntry' })}
                   variant="outline"
                   size="lg"
                   className="text-xl px-8 py-4"
@@ -459,7 +544,7 @@ const MemoryGame: React.FC = () => {
   }
 
   // UI: gameOver
-  if (gameState === 'gameOver') {
+  if (state.gameState === 'gameOver') {
     return (
       <div className="min-h-screen bg-gradient-background flex items-center justify-center p-6">
         <Card className="w-full max-w-2xl bg-card/90 backdrop-blur-sm border-destructive/20 shadow-glow">
@@ -473,7 +558,7 @@ const MemoryGame: React.FC = () => {
                 Muitas tentativas ou tempo esgotado! Tente novamente.
               </p>
               <div className="text-3xl font-bold text-foreground mb-8">
-                Pontuação Final: {totalScore + score}
+                Pontuação Final: {state.totalScore + state.score}
               </div>
               <div className="flex gap-4 justify-center">
                 <Button
@@ -485,7 +570,7 @@ const MemoryGame: React.FC = () => {
                   Tentar Novamente
                 </Button>
                 <Button
-                  onClick={() => setGameState('dataEntry')}
+                  onClick={() => dispatch({ type: 'SET_GAME_STATE', payload: 'dataEntry' })}
                   variant="outline"
                   size="lg"
                   className="text-xl px-8 py-4"
@@ -501,8 +586,8 @@ const MemoryGame: React.FC = () => {
   }
 
   // UI: phaseCompleted
-  if (gameState === 'phaseCompleted') {
-    const isLastPhase = currentPhase === GAME_PHASES.length - 1;
+  if (state.gameState === 'phaseCompleted') {
+    const isLastPhase = state.currentPhase === GAME_PHASES.length - 1;
 
     return (
       <div className="min-h-screen bg-gradient-background flex items-center justify-center p-4 md:p-6">
@@ -511,7 +596,7 @@ const MemoryGame: React.FC = () => {
             <div className="animate-scale-in">
               <div className="text-8xl mb-6 animate-pulse">🎉</div>
               <h1 className="text-3xl md:text-5xl font-bold mb-4 bg-gradient-success bg-clip-text text-transparent">
-                Fase {currentPhase + 1} Completada!
+                Fase {state.currentPhase + 1} Completada!
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-6">
                 Excelente trabalho!
@@ -519,13 +604,13 @@ const MemoryGame: React.FC = () => {
 
               <div className="space-y-4 mb-8">
                 <div className="text-lg md:text-2xl font-bold text-foreground">
-                  Pontos da Fase: {score}
+                  Pontos da Fase: {state.score}
                 </div>
                 <div className="text-lg md:text-2xl font-bold text-success">
-                  Bônus Eficiência: {efficiencyBonus}
+                  Bônus Eficiência: {state.efficiencyBonus}
                 </div>
                 <div className="text-xl md:text-3xl font-bold text-primary">
-                  Total: {totalScore + score + efficiencyBonus}
+                  Total: {state.totalScore + state.score + state.efficiencyBonus}
                 </div>
               </div>
 
@@ -535,7 +620,7 @@ const MemoryGame: React.FC = () => {
                     Próxima Fase:
                   </h3>
                   <p className="text-base md:text-lg text-foreground">
-                    {GAME_PHASES[currentPhase + 1].description}
+                    {GAME_PHASES[state.currentPhase + 1].description}
                   </p>
                 </div>
               )}
@@ -564,31 +649,31 @@ const MemoryGame: React.FC = () => {
           <h1 className="text-2xl md:text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
             {phase.description}
           </h1>
-          <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-xl">
-            <div className="flex items-center gap-2">
-              <Trophy className="w-4 h-4 md:w-6 md:h-6 text-warning" />
-              <span className="text-foreground">Pontos: {score}</span>
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-xl">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4 md:w-6 md:h-6 text-warning" />
+                <span className="text-foreground">Pontos: {state.score}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-foreground">Tentativas: {state.moves}/{Math.floor(state.cards.length / 2) + 2}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-foreground">Pares: {state.matchedPairs}/{Math.floor(state.cards.length / 2)}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-foreground">Tentativas: {moves}/{Math.floor(cards.length / 2) + 2}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-foreground">Pares: {matchedPairs}/{Math.floor(cards.length / 2)}</span>
-            </div>
-          </div>
           
           {/* Cronômetro visível apenas na fase 3 (index 2) enquanto jogando */}
-          {currentPhase === 2 && gameState === 'playing' && (
+          {state.currentPhase === 2 && state.gameState === 'playing' && (
             <div className="text-center mt-4">
               <div className="inline-block px-4 md:px-6 py-2 bg-black/70 rounded-xl border border-white/20">
                 <p className="text-base md:text-lg text-white font-bold">
-                  Tempo restante: <span className="text-red-500">{countdown}s</span>
+                  Tempo restante: <span className="text-red-500">{state.countdown}s</span>
                 </p>
               </div>
             </div>
           )}
 
-          {currentPhase === 2 && timeUp && (
+          {state.currentPhase === 2 && state.timeUp && (
             <div className="text-center mt-4">
               <p className="text-red-600 font-semibold text-base md:text-lg">Tempo esgotado!</p>
             </div>
@@ -596,7 +681,7 @@ const MemoryGame: React.FC = () => {
         </div>
 
         {/* Preview Button */}
-        {gameState === 'playing' && (
+        {state.gameState === 'playing' && (
           <div className="text-center mb-6">
             <Button
               onClick={showPreview}
@@ -607,7 +692,7 @@ const MemoryGame: React.FC = () => {
               <Eye className="w-4 h-4 md:w-5 md:h-5 mr-2" />
               <span className="hidden sm:inline">Visualizar figuras </span>
               <span className="sm:hidden">Ver </span>
-              ({previewUsesLeft})
+              ({state.previewUsesLeft})
             </Button>
           </div>
         )}
@@ -621,39 +706,23 @@ const MemoryGame: React.FC = () => {
             maxWidth: phase.cols > 4 ? '100%' : '600px'
           }}
         >
-          {cards.map((card) => (
-            <div
+          {state.cards.map((card) => (
+            <GameCard
               key={card.id}
-              onClick={() => handleCardClick(card.id)}
-              className={`
-                aspect-square rounded-lg md:rounded-2xl cursor-pointer transition-all duration-100 hover:scale-105
-                flex items-center justify-center text-2xl md:text-4xl font-bold shadow-card
-                ${card.isMatched 
-                  ? 'bg-gradient-success text-success-foreground animate-card-match' 
-                  : card.isFlipped || showingPreview
-                  ? 'bg-gradient-primary text-primary-foreground' 
-                  : 'bg-game-card-back text-transparent hover:shadow-glow'
-                }
-                ${gameState === 'playing' && !card.isMatched ? 'hover:shadow-glow' : ''}
-              `}
-            >
-              {(card.isFlipped || card.isMatched || showingPreview || showOverlay) ? (
-                <img
-                  src={card.image}
-                  alt="Imagem do card"
-                  className="w-3/4 h-3/4 object-contain"
-                  loading="eager"
-                  decoding="sync"
-                />
-              ) : (
-                '?'
-              )}
-            </div>
+              id={card.id}
+              image={card.image}
+              isFlipped={card.isFlipped}
+              isMatched={card.isMatched}
+              showingPreview={state.showingPreview}
+              showOverlay={state.showOverlay}
+              gameState={state.gameState}
+              onClick={handleCardClick}
+            />
           ))}
         </div>
 
         {/* Preview Overlay */}
-        {showOverlay && (
+        {state.showOverlay && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           </div>
         )}
@@ -661,7 +730,7 @@ const MemoryGame: React.FC = () => {
       </div>
 
       <div>
-        {timeUp && (
+        {state.timeUp && (
           <div className="text-red-500 text-center font-bold text-xl mt-4">
             Tempo esgotado!
           </div>
