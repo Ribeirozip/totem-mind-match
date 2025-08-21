@@ -310,7 +310,7 @@ const MemoryGame: React.FC = () => {
           ));
         }
         setFlippedCards([]);
-      }, 400);
+      }, 3000);
     }
   };
 
