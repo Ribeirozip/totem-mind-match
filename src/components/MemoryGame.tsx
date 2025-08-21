@@ -126,12 +126,12 @@ const MemoryGame: React.FC = () => {
     setGameState('preview');
     setShowingPreview(true);
     setShowOverlay(true);
-    // initial preview duration 3s
+    // initial preview duration 1.5s
     setTimeout(() => {
       setShowingPreview(false);
       setShowOverlay(false);
       setGameState('playing');
-    }, 3000);
+    }, 1500);
     // If it's phase 3, preset the countdown to 30 (will be used when playing)
     if (phaseIndex === 2) {
       setCountdown(30);
@@ -168,7 +168,7 @@ const MemoryGame: React.FC = () => {
     setGameState('preview');
   };
 
-  // Efficiency timer: decreases bonus by 50 every 30s during playing state
+  // Efficiency timer: decreases bonus by 50 based on phase (10s for phase 1, 15s for phases 2&3)
   useEffect(() => {
     const clearEfficiencyTimer = () => {
       if (efficiencyTimerRef.current) {
@@ -179,15 +179,17 @@ const MemoryGame: React.FC = () => {
 
     if (gameState === 'playing') {
       clearEfficiencyTimer();
+      // Phase 1: 10 seconds, Phases 2&3: 15 seconds
+      const timerInterval = currentPhase === 0 ? 10000 : 15000;
       efficiencyTimerRef.current = setInterval(() => {
         setEfficiencyBonus(prev => Math.max(0, prev - 50));
-      }, 20000); // 20 seconds
+      }, timerInterval);
     } else {
       clearEfficiencyTimer();
     }
 
     return () => clearEfficiencyTimer();
-  }, [gameState]);
+  }, [gameState, currentPhase]);
 
   // Timer effect for phase 3: starts only when currentPhase === 2 and gameState === 'playing'
   useEffect(() => {
@@ -308,7 +310,7 @@ const MemoryGame: React.FC = () => {
           ));
         }
         setFlippedCards([]);
-      }, 800);
+      }, 400);
     }
   };
 
@@ -624,7 +626,7 @@ const MemoryGame: React.FC = () => {
               key={card.id}
               onClick={() => handleCardClick(card.id)}
               className={`
-                aspect-square rounded-lg md:rounded-2xl cursor-pointer transition-all duration-300 hover:scale-105
+                aspect-square rounded-lg md:rounded-2xl cursor-pointer transition-all duration-150 hover:scale-105
                 flex items-center justify-center text-2xl md:text-4xl font-bold shadow-card
                 ${card.isMatched 
                   ? 'bg-gradient-success text-success-foreground animate-card-match' 
